@@ -1,0 +1,66 @@
+# 1. Gizli Bilgiler
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# 2. Bağımlılıklar
+node_modules/
+
+# 3. Build (Derleme) Çıktıları
+dist/
+dist-ssr/
+build/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+coverage/
+
+# 3.1. ETL (Extract, Transform, Load) Klasörü
+etl/
+ETL/
+
+# 3.2. Dokümantasyon ve Gereksiz Klasörler
+../lisansustu_docs/
+lisansustu_docs/
+
+# 3.3. Python Cache ve Geçici Dosyalar
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+env/
+
+# 4. Log (Kayıt) Dosyaları
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 5. İşletim Sistemi ve Editör Dosyaları
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?   
