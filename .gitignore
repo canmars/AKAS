@@ -27,6 +27,8 @@ ETL/
 ../lisansustu_docs/
 lisansustu_docs/
 scripts/
+scripts
+scripts/**
 
 # 3.3. Python Cache ve Geçici Dosyalar
 __pycache__/
