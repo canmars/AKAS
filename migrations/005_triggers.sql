@@ -13,54 +13,67 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Tüm tablolara updated_at trigger'ı ekle
+DROP TRIGGER IF EXISTS trigger_updated_at_kullanicilar ON public.kullanicilar;
 CREATE TRIGGER trigger_updated_at_kullanicilar
 BEFORE UPDATE ON public.kullanicilar
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_akademik_personel ON public.akademik_personel;
 CREATE TRIGGER trigger_updated_at_akademik_personel
 BEFORE UPDATE ON public.akademik_personel
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_ogrenci ON public.ogrenci;
 CREATE TRIGGER trigger_updated_at_ogrenci
 BEFORE UPDATE ON public.ogrenci
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_program_turleri ON public.program_turleri;
 CREATE TRIGGER trigger_updated_at_program_turleri
 BEFORE UPDATE ON public.program_turleri
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_danisman_gecmisi ON public.danisman_gecmisi;
 CREATE TRIGGER trigger_updated_at_danisman_gecmisi
 BEFORE UPDATE ON public.danisman_gecmisi
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_akademik_milestone ON public.akademik_milestone;
 CREATE TRIGGER trigger_updated_at_akademik_milestone
 BEFORE UPDATE ON public.akademik_milestone
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_tik_toplantilari ON public.tik_toplantilari;
 CREATE TRIGGER trigger_updated_at_tik_toplantilari
 BEFORE UPDATE ON public.tik_toplantilari
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_tez_donem_kayitlari ON public.tez_donem_kayitlari;
 CREATE TRIGGER trigger_updated_at_tez_donem_kayitlari
 BEFORE UPDATE ON public.tez_donem_kayitlari
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_sistem_ayarlari ON public.sistem_ayarlari;
 CREATE TRIGGER trigger_updated_at_sistem_ayarlari
 BEFORE UPDATE ON public.sistem_ayarlari
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_ogrenci_dersleri ON public.ogrenci_dersleri;
 CREATE TRIGGER trigger_updated_at_ogrenci_dersleri
 BEFORE UPDATE ON public.ogrenci_dersleri
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_akademik_takvim ON public.akademik_takvim;
 CREATE TRIGGER trigger_updated_at_akademik_takvim
 BEFORE UPDATE ON public.akademik_takvim
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_ogrenci_akademik_durum ON public.ogrenci_akademik_durum;
 CREATE TRIGGER trigger_updated_at_ogrenci_akademik_durum
 BEFORE UPDATE ON public.ogrenci_akademik_durum
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS trigger_updated_at_ogrenci_son_login ON public.ogrenci_son_login;
 CREATE TRIGGER trigger_updated_at_ogrenci_son_login
 BEFORE UPDATE ON public.ogrenci_son_login
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -83,6 +96,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_ogrenci_akademik_durum ON public.ogrenci;
 CREATE TRIGGER trigger_update_ogrenci_akademik_durum
 AFTER INSERT OR UPDATE OF kayit_tarihi ON public.ogrenci
 FOR EACH ROW
@@ -142,6 +156,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_check_maximum_sure_asimi ON public.ogrenci;
 CREATE TRIGGER trigger_check_maximum_sure_asimi
 BEFORE UPDATE OF kayit_tarihi, durum_id ON public.ogrenci
 FOR EACH ROW
@@ -179,6 +194,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_log_durum_gecmisi ON public.ogrenci;
 CREATE TRIGGER trigger_log_durum_gecmisi
 AFTER UPDATE OF durum_id ON public.ogrenci
 FOR EACH ROW
@@ -328,6 +344,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_create_risk_bildirim ON public.ogrenci_risk_analizi;
 CREATE TRIGGER trigger_create_risk_bildirim
 AFTER INSERT OR UPDATE OF risk_skoru ON public.ogrenci_risk_analizi
 FOR EACH ROW
@@ -371,6 +388,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_create_hayalet_ogrenci_bildirim ON public.ogrenci_son_login;
 CREATE TRIGGER trigger_create_hayalet_ogrenci_bildirim
 AFTER INSERT OR UPDATE OF son_login ON public.ogrenci_son_login
 FOR EACH ROW
@@ -462,6 +480,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_create_tik_uyari ON public.tik_toplantilari;
 CREATE TRIGGER trigger_create_tik_uyari
 BEFORE INSERT OR UPDATE OF toplanti_tarihi ON public.tik_toplantilari
 FOR EACH ROW
@@ -508,6 +527,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_ogrenci_son_login ON public.kullanici_aktiviteleri;
 CREATE TRIGGER trigger_update_ogrenci_son_login
 AFTER INSERT ON public.kullanici_aktiviteleri
 FOR EACH ROW
@@ -542,6 +562,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_akademik_durum_on_milestone ON public.akademik_milestone;
 CREATE TRIGGER trigger_update_akademik_durum_on_milestone
 AFTER UPDATE OF durum ON public.akademik_milestone
 FOR EACH ROW
@@ -688,6 +709,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger: ogrenci tablosuna danisman_id atandığında/güncellendiğinde kapasite kontrolü
+DROP TRIGGER IF EXISTS trigger_check_capacity ON public.ogrenci;
 CREATE TRIGGER trigger_check_capacity
 BEFORE INSERT OR UPDATE OF danisman_id ON public.ogrenci
 FOR EACH ROW
@@ -697,13 +719,13 @@ EXECUTE FUNCTION check_capacity();
 COMMENT ON FUNCTION check_capacity IS 'Unvan bazlı sert ve yumuşak limit kontrolü - Kapasite yönetimi';
 
 -- ============================================
--- SEMİNER DARBOĞAZ KONTROLÜ TRIGGER
--- ogrenci_dersleri tablosuna ders eklendiğinde/güncellendiğinde Seminer darboğaz kontrolü
+-- SEMİNER DARBOGAZ KONTROLÜ TRIGGER
+-- ogrenci_dersleri tablosuna ders eklendiğinde/güncellendiğinde Seminer darbogaz kontrolü
 -- ============================================
-CREATE OR REPLACE FUNCTION check_seminer_darboğaz()
+CREATE OR REPLACE FUNCTION check_seminer_darbogaz()
 RETURNS TRIGGER AS $$
 DECLARE
-  v_seminer_darboğaz_record RECORD;
+  v_seminer_darbogaz_record RECORD;
   v_bildirim_mesaji TEXT;
 BEGIN
   -- Seminer dersi eklendiğinde veya güncellendiğinde kontrol et
@@ -713,30 +735,30 @@ BEGIN
     WHERE dk.ders_kodu = NEW.ders_kodu
     AND dk.ders_turu = 'Seminer'
   ) THEN
-    -- Seminer darboğaz kontrolü yap
-    SELECT * INTO v_seminer_darboğaz_record
-    FROM public.ogrenci_seminer_darboğaz_view
+    -- Seminer darbogaz kontrolü yap
+    SELECT * INTO v_seminer_darbogaz_record
+    FROM public.ogrenci_seminer_darbogaz_view
     WHERE ogrenci_id = NEW.ogrenci_id;
     
     IF FOUND THEN
       -- ACİL_EYLEM statüsü varsa bildirim oluştur
-      IF v_seminer_darboğaz_record.acil_eylem_mi = true THEN
+      IF v_seminer_darbogaz_record.acil_eylem_mi = true THEN
         v_bildirim_mesaji := format('%s %s öğrencisi 4. yarıyılda ve Seminer dersi ''B'' notu ile tamamlanmamış. ACİL EYLEM GEREKLİ!', 
-          v_seminer_darboğaz_record.ad, v_seminer_darboğaz_record.soyad);
+          v_seminer_darbogaz_record.ad, v_seminer_darbogaz_record.soyad);
         
         PERFORM create_bildirim_for_roles(
           ARRAY['Bolum_Baskani', 'Danisman'],
-          'Seminer_Darboğaz',
+          'Seminer_Darbogaz',
           v_bildirim_mesaji,
           'Kritik'
         );
-      ELSIF v_seminer_darboğaz_record.kritik_darbogaz_mi = true THEN
-        v_bildirim_mesaji := format('%s %s öğrencisi için Seminer darboğaz tespit edildi. Durum: %s', 
-          v_seminer_darboğaz_record.ad, v_seminer_darboğaz_record.soyad, v_seminer_darboğaz_record.seminer_durumu);
+      ELSIF v_seminer_darbogaz_record.kritik_darbogaz_mi = true THEN
+        v_bildirim_mesaji := format('%s %s öğrencisi için Seminer darbogaz tespit edildi. Durum: %s', 
+          v_seminer_darbogaz_record.ad, v_seminer_darbogaz_record.soyad, v_seminer_darbogaz_record.seminer_durumu);
         
         PERFORM create_bildirim_for_roles(
           ARRAY['Bolum_Baskani', 'Danisman'],
-          'Seminer_Darboğaz',
+          'Seminer_Darbogaz',
           v_bildirim_mesaji,
           'Yuksek'
         );
@@ -748,10 +770,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger: ogrenci_dersleri tablosuna ders eklendiğinde/güncellendiğinde Seminer darboğaz kontrolü
-CREATE TRIGGER trigger_check_seminer_darboğaz
+-- Trigger: ogrenci_dersleri tablosuna ders eklendiğinde/güncellendiğinde Seminer darbogaz kontrolü
+DROP TRIGGER IF EXISTS trigger_check_seminer_darbogaz ON public.ogrenci_dersleri;
+CREATE TRIGGER trigger_check_seminer_darbogaz
 AFTER INSERT OR UPDATE OF not_kodu ON public.ogrenci_dersleri
 FOR EACH ROW
-EXECUTE FUNCTION check_seminer_darboğaz();
+EXECUTE FUNCTION check_seminer_darbogaz();
 
-COMMENT ON FUNCTION check_seminer_darboğaz IS 'Seminer darboğaz kontrolü - ACİL_EYLEM statüsü ile bildirim oluşturur';
+COMMENT ON FUNCTION check_seminer_darbogaz IS 'Seminer darbogaz kontrolü - ACİL_EYLEM statüsü ile bildirim oluşturur';

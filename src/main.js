@@ -3,7 +3,6 @@
  * Uygulama giriş noktası
  */
 
-import './styles/main.css';
 import { AppController } from './controllers/AppController.js';
 import { APP_CONFIG } from './utils/constants.js';
 

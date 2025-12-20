@@ -1226,7 +1226,7 @@ SELECT
   oad.ders_tamamlandi_mi,
   oad.tamamlanan_ders_sayisi,
   -- Ders sayısı (başarılı dersler)
-  (SELECT COUNT(DISTINCT ders_kodu)
+  (SELECT COUNT(DISTINCT od.ders_kodu)
    FROM public.ogrenci_dersleri od
    WHERE od.ogrenci_id = o.ogrenci_id
    AND od.not_kodu IN ('B', 'AA', 'BA', 'BB', 'CB', 'CC', 'DC', 'DD')
@@ -1242,7 +1242,7 @@ SELECT
                 WHERE od2.ogrenci_id = od.ogrenci_id AND od2.ders_kodu = od.ders_kodu)
   ) as toplam_akts,
   -- Seminer dersi kontrolü
-  (SELECT ders_kodu
+  (SELECT od.ders_kodu
    FROM public.ogrenci_dersleri od
    JOIN public.dersler dk ON od.ders_kodu = dk.ders_kodu
    WHERE od.ogrenci_id = o.ogrenci_id
@@ -1264,7 +1264,7 @@ SELECT
   ) as seminer_not_kodu,
   -- Ders aşaması tamamlandı mı? (7 ders + 60 AKTS + Seminer)
   CASE 
-    WHEN (SELECT COUNT(DISTINCT ders_kodu)
+    WHEN (SELECT COUNT(DISTINCT od.ders_kodu)
           FROM public.ogrenci_dersleri od
           WHERE od.ogrenci_id = o.ogrenci_id
           AND od.not_kodu IN ('B', 'AA', 'BA', 'BB', 'CB', 'CC', 'DC', 'DD')
@@ -1296,8 +1296,10 @@ JOIN public.program_turleri pt ON o.program_turu_id = pt.program_turu_id
 LEFT JOIN public.ogrenci_akademik_durum oad ON o.ogrenci_id = oad.ogrenci_id
 WHERE o.soft_delete = false;
 
--- View: Seminer Darboğaz Kontrolü
-CREATE OR REPLACE VIEW public.ogrenci_seminer_darboğaz_view AS
+-- View: Seminer Darbogaz Kontrolü
+-- Eski view'i drop et (eğer varsa)
+DROP VIEW IF EXISTS public.ogrenci_seminer_darboğaz_view CASCADE;
+CREATE OR REPLACE VIEW public.ogrenci_seminer_darbogaz_view AS
 SELECT 
   o.ogrenci_id,
   o.ad,
@@ -1449,15 +1451,17 @@ JOIN public.program_turleri pt ON o.program_turu_id = pt.program_turu_id
 LEFT JOIN public.ogrenci_akademik_durum oad ON o.ogrenci_id = oad.ogrenci_id
 WHERE o.soft_delete = false;
 
--- Function: Seminer Darboğaz Kontrolü
-CREATE OR REPLACE FUNCTION fn_kontrol_seminer_darboğaz(p_ogrenci_id UUID)
+-- Function: Seminer Darbogaz Kontrolü
+-- Eski function'ı drop et (eğer varsa)
+DROP FUNCTION IF EXISTS fn_kontrol_seminer_darboğaz(UUID) CASCADE;
+CREATE OR REPLACE FUNCTION fn_kontrol_seminer_darbogaz(p_ogrenci_id UUID)
 RETURNS JSONB AS $$
 DECLARE
   v_result JSONB;
   v_view_record RECORD;
 BEGIN
   SELECT * INTO v_view_record
-  FROM public.ogrenci_seminer_darboğaz_view
+  FROM public.ogrenci_seminer_darbogaz_view
   WHERE ogrenci_id = p_ogrenci_id;
   
   IF NOT FOUND THEN
@@ -1545,9 +1549,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 COMMENT ON VIEW public.ogrenci_ders_asamasi_view IS 'Öğrenci ders aşaması kontrolü (7 ders + 60 AKTS + Seminer)';
-COMMENT ON VIEW public.ogrenci_seminer_darboğaz_view IS 'Seminer darboğaz kontrolü - ACİL_EYLEM statüsü ile (4. yarıyılda ve seminer B değilse)';
+COMMENT ON VIEW public.ogrenci_seminer_darbogaz_view IS 'Seminer darbogaz kontrolü - ACİL_EYLEM statüsü ile (4. yarıyılda ve seminer B değilse)';
 COMMENT ON FUNCTION fn_kontrol_ders_asamasi IS 'Ders aşaması kontrolü yapar: (Ders Sayısı >= 7) AND (AKTS >= 60) AND (Seminer == B veya AA-DD arası)';
-COMMENT ON FUNCTION fn_kontrol_seminer_darboğaz IS 'Seminer darboğaz kontrolü yapar ve JSONB formatında sonuç döndürür';
+COMMENT ON FUNCTION fn_kontrol_seminer_darbogaz IS 'Seminer darbogaz kontrolü yapar ve JSONB formatında sonuç döndürür';
 
 -- ============================================
 -- TEZ ÖNERİSİ EK SÜRE HESAPLAMA FONKSİYONLARI

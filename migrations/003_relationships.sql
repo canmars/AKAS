@@ -13,9 +13,13 @@ CREATE TABLE IF NOT EXISTS public.danisman_gecmisi (
   aktif_mi BOOLEAN DEFAULT true,
   degisiklik_nedeni TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  CONSTRAINT unique_aktif_danisman UNIQUE (ogrenci_id) WHERE aktif_mi = true
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
+
+-- Partial Unique Index: Her öğrenci için sadece bir aktif danışman olabilir
+CREATE UNIQUE INDEX IF NOT EXISTS unique_aktif_danisman 
+ON public.danisman_gecmisi(ogrenci_id) 
+WHERE aktif_mi = true;
 
 -- ============================================
 -- AKADEMIK PERSONEL UZMANLIK TABLOSU
@@ -152,6 +156,20 @@ CREATE TABLE IF NOT EXISTS public.ogrenci_dersleri (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   CONSTRAINT unique_ogrenci_ders_yariyil UNIQUE (ogrenci_id, ders_kodu, yariyil, akademik_yil, ts)
 );
+
+-- Ogrenci dersleri -> dersler (Foreign Key Constraint)
+-- NOT: Bu constraint 002_reference_tables.sql'de eklenemezdi çünkü ogrenci_dersleri tablosu henüz oluşturulmamıştı
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'fk_ogrenci_dersleri_dersler'
+  ) THEN
+    ALTER TABLE public.ogrenci_dersleri
+    ADD CONSTRAINT fk_ogrenci_dersleri_dersler
+    FOREIGN KEY (ders_kodu) REFERENCES public.dersler(ders_kodu);
+  END IF;
+END $$;
 
 -- ============================================
 -- AKADEMIK TAKVIM TABLOSU

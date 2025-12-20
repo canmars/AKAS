@@ -93,11 +93,61 @@ export class DashboardController {
   static async getBildirimler(req, res, next) {
     try {
       const limit = parseInt(req.query.limit) || 20;
-      const bildirimler = await dashboardQueries.getBildirimler(req.user.id, limit);
+      // Development modunda req.user.id yoksa null gönder
+      const kullaniciId = req.user?.id || null;
+      const bildirimler = await dashboardQueries.getBildirimler(kullaniciId, limit);
       
       res.json({
         success: true,
         data: bildirimler
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Attrition Data (Sessiz Ölüm Radarı için)
+   */
+  static async getAttritionData(req, res, next) {
+    try {
+      const data = await dashboardQueries.getAttritionData();
+      
+      res.json({
+        success: true,
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Bottleneck Data (Darboğaz Hunisi için)
+   */
+  static async getBottleneckData(req, res, next) {
+    try {
+      const data = await dashboardQueries.getBottleneckData();
+      
+      res.json({
+        success: true,
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Süreç Hattı (DB mevcut aşama + risk grubu dağılımı)
+   */
+  static async getSurecHatti(req, res, next) {
+    try {
+      const data = await dashboardQueries.getSurecHattiDagilimi();
+
+      res.json({
+        success: true,
+        data
       });
     } catch (error) {
       next(error);

@@ -67,30 +67,62 @@ CREATE TABLE IF NOT EXISTS public.dersler (
 -- ============================================
 -- FOREIGN KEY CONSTRAINTS
 -- ============================================
+-- Constraint'leri güvenli bir şekilde ekle (zaten varsa hata vermez)
+
 -- Akademik personel -> anabilim dallari
-ALTER TABLE public.akademik_personel
-ADD CONSTRAINT fk_akademik_personel_anabilim_dali
-FOREIGN KEY (anabilim_dali_id) REFERENCES public.anabilim_dallari(anabilim_dali_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'fk_akademik_personel_anabilim_dali'
+  ) THEN
+    ALTER TABLE public.akademik_personel
+    ADD CONSTRAINT fk_akademik_personel_anabilim_dali
+    FOREIGN KEY (anabilim_dali_id) REFERENCES public.anabilim_dallari(anabilim_dali_id);
+  END IF;
+END $$;
 
 -- Ogrenci -> program turleri
-ALTER TABLE public.ogrenci
-ADD CONSTRAINT fk_ogrenci_program_turu
-FOREIGN KEY (program_turu_id) REFERENCES public.program_turleri(program_turu_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'fk_ogrenci_program_turu'
+  ) THEN
+    ALTER TABLE public.ogrenci
+    ADD CONSTRAINT fk_ogrenci_program_turu
+    FOREIGN KEY (program_turu_id) REFERENCES public.program_turleri(program_turu_id);
+  END IF;
+END $$;
 
 -- Ogrenci -> durum turleri
-ALTER TABLE public.ogrenci
-ADD CONSTRAINT fk_ogrenci_durum
-FOREIGN KEY (durum_id) REFERENCES public.durum_turleri(durum_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'fk_ogrenci_durum'
+  ) THEN
+    ALTER TABLE public.ogrenci
+    ADD CONSTRAINT fk_ogrenci_durum
+    FOREIGN KEY (durum_id) REFERENCES public.durum_turleri(durum_id);
+  END IF;
+END $$;
 
 -- Ogrenci -> akademik personel (danisman)
-ALTER TABLE public.ogrenci
-ADD CONSTRAINT fk_ogrenci_danisman
-FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'fk_ogrenci_danisman'
+  ) THEN
+    ALTER TABLE public.ogrenci
+    ADD CONSTRAINT fk_ogrenci_danisman
+    FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id);
+  END IF;
+END $$;
 
--- Ogrenci dersleri -> dersler
-ALTER TABLE public.ogrenci_dersleri
-ADD CONSTRAINT fk_ogrenci_dersleri_dersler
-FOREIGN KEY (ders_kodu) REFERENCES public.dersler(ders_kodu);
+-- NOT: ogrenci_dersleri tablosuna foreign key constraint 003_relationships.sql dosyasında eklenecek
+-- (ogrenci_dersleri tablosu 003_relationships.sql'de oluşturulduğu için)
 
 -- ============================================
 -- COMMENTS

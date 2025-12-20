@@ -4,11 +4,12 @@
 
 ```mermaid
 erDiagram
-    kullanicilar ||--o| akademik_personel : "1:1"
-    kullanicilar ||--o{ ogrenci : "1:N"
+    kullanicilar ||--o| akademik_personel : "1:1 (akademik_personel_id)"
+    kullanicilar ||--o| ogrenci : "1:1 (ogrenci_id)"
     akademik_personel ||--o{ ogrenci : "danisman"
     akademik_personel }o--|| anabilim_dallari : "N:1"
-    ogrenci }o--|| program_turleri : "N:1"
+    ogrenci }o--|| program_turleri : "N:1 (program_turu_id)"
+    ogrenci }o--|| program_turleri : "N:1 (program_kabul_turu)"
     ogrenci }o--|| durum_turleri : "N:1"
     ogrenci ||--o{ ogrenci_dersleri : "1:N"
     ogrenci_dersleri }o--|| dersler : "N:1"
@@ -24,8 +25,9 @@ erDiagram
     
     kullanicilar {
         UUID kullanici_id PK
-        UUID akademik_personel_id FK
-        TEXT rol
+        UUID akademik_personel_id FK "akademik_personel.personel_id"
+        UUID ogrenci_id FK "ogrenci.ogrenci_id"
+        TEXT rol "Admin, Bolum_Baskani, Danisman, Ogrenci"
         TEXT email UK
         TEXT ad
         TEXT soyad
@@ -51,9 +53,10 @@ erDiagram
     ogrenci {
         UUID ogrenci_id PK
         UUID kullanici_id FK
-        UUID program_turu_id FK
+        UUID program_turu_id FK "program_turleri.program_turu_id"
         UUID durum_id FK
         UUID danisman_id FK
+        UUID program_kabul_turu FK "program_turleri.program_turu_id"
         TEXT tc_kimlik_no UK
         TEXT ad
         TEXT soyad
@@ -64,7 +67,6 @@ erDiagram
         TEXT adres
         DATE kayit_tarihi
         DATE kabul_tarihi
-        TEXT kabul_turu
         TEXT ogrenci_no UK
         TIMESTAMP son_login
         BOOLEAN soft_delete
@@ -138,10 +140,11 @@ erDiagram
 - `tc_kimlik_no`, `ad`, `soyad`, `dogum_tarihi`, `cinsiyet`, `email`, `telefon`, `adres`
 
 **Akademik Statü Bilgileri:**
-- `kayit_tarihi`, `kabul_tarihi`, `kabul_turu`, `ogrenci_no`
+- `kayit_tarihi`, `kabul_tarihi`, `program_kabul_turu` (FK → program_turleri), `ogrenci_no`
 
 **Program ve Durum Bilgileri:**
-- `program_turu_id` (FK → program_turleri)
+- `program_turu_id` (FK → program_turleri) - Öğrencinin kayıtlı olduğu program
+- `program_kabul_turu` (FK → program_turleri) - Öğrencinin hangi programdan mezun olarak bu programa kabul edildiği (Lisans, Tezli_YL, vb.)
 - `durum_id` (FK → durum_turleri)
 
 **Kapasite Yönetimi:**
@@ -335,7 +338,7 @@ Risk Skoru = (Kalan Süre Oranı * 0.6)
 - Mantık: `IF (CURRENT_DATE - son_login::DATE) > 180 THEN risk_skoru := risk_skoru + 30`
 - Sonuç: Hayalet öğrenciler risk skorunda otomatik olarak yüksek puana sahip olur
 
-## 7. Seminer "Kritik Darboğaz" İşaretleme
+## 7. Seminer "Kritik Darbogaz" İşaretleme
 
 ### 7.1. dersler Tablosu
 
@@ -345,7 +348,7 @@ Risk Skoru = (Kalan Süre Oranı * 0.6)
 - `ders_turu` (Seminer, Zorunlu, Seçmeli)
 - `kritik_darbogaz_mi` (BOOLEAN) - Seminer için true
 
-### 7.2. View: `ogrenci_seminer_darboğaz_view`
+### 7.2. View: `ogrenci_seminer_darbogaz_view`
 
 **Seminer Durumu:**
 - `seminer_yok`: Seminer dersi hiç alınmamış
@@ -353,24 +356,24 @@ Risk Skoru = (Kalan Süre Oranı * 0.6)
 - `seminer_eksik`: Ders aşaması tamamlanmış ama Seminer eksik (7 ders + 60 AKTS var ama Seminer yok)
 - `seminer_tamam`: Seminer dersi başarılı
 
-**Kritik Darboğaz:**
-- `kritik_darboğaz_mi`: Herhangi bir darboğaz durumu varsa true
+**Kritik Darbogaz:**
+- `kritik_darbogaz_mi`: Herhangi bir darbogaz durumu varsa true
 
 **ACİL_EYLEM Statüsü:**
 - `acil_eylem_mi`: Öğrenci 4. yarıyılda ise VE seminer notu 'B' değilse → true
 - Mantık: `IF (mevcut_yariyil = 4) AND (seminer_not_kodu != 'B' OR seminer_yok) THEN acil_eylem_mi = true`
 - `durum_statüsü`: 'ACİL_EYLEM', 'UYARI', 'NORMAL'
 
-### 7.3. Function: `fn_kontrol_seminer_darboğaz(p_ogrenci_id)`
+### 7.3. Function: `fn_kontrol_seminer_darbogaz(p_ogrenci_id)`
 
 **Açıklama:**
-- Seminer darboğaz kontrolü yapar
-- Sonuç: JSONB formatında darboğaz durumu ve detayları
+- Seminer darbogaz kontrolü yapar
+- Sonuç: JSONB formatında darbogaz durumu ve detayları
 
-### 7.4. Trigger: `check_seminer_darboğaz`
+### 7.4. Trigger: `check_seminer_darbogaz`
 
 **Açıklama:**
-- `ogrenci_dersleri` tablosuna ders eklendiğinde/güncellendiğinde Seminer darboğaz kontrolü
+- `ogrenci_dersleri` tablosuna ders eklendiğinde/güncellendiğinde Seminer darbogaz kontrolü
 - ACİL_EYLEM statüsü varsa bildirim oluşturur
 
 ## 8. H (Hak Dondurma) Kodu Mantığı
@@ -404,13 +407,30 @@ Risk Skoru = (Kalan Süre Oranı * 0.6)
 
 - Risk skoru hesaplama (TS çarpanlı formül)
 - Hayalet öğrenci tespiti (180 gün kontrolü)
-- Seminer darboğaz kontrolü (ACİL_EYLEM statüsü)
+- Seminer darbogaz kontrolü (ACİL_EYLEM statüsü)
 - Kapasite yönetimi (unvan bazlı limitler)
 - H (Hak Dondurma) kodu mantığı (etkili yarıyıl hesaplama)
 
 ### 9.3. Performans Optimizasyonları
 
-- Index'ler eklendi (danisman_id, son_login, ders_kodu, vb.)
-- View'lar oluşturuldu (ogrenci_ders_asamasi_view, ogrenci_seminer_darboğaz_view)
+- Index'ler eklendi (danisman_id, son_login, ders_kodu, program_kabul_turu, ogrenci_id, vb.)
+- View'lar oluşturuldu (ogrenci_ders_asamasi_view, ogrenci_seminer_darbogaz_view, akademik_personel_yuk_view)
 - Denormalizasyon (ogrenci.son_login - performans için)
+
+### 9.4. Son Değişiklikler
+
+**Migration 009: Program Kabul Türü Normalizasyonu**
+- `kabul_turu` (TEXT) sütunu `program_kabul_turu` (UUID FK) olarak değiştirildi
+- `program_turleri` tablosuna foreign key ilişkisi eklendi
+- Lisans programı `program_turleri` tablosuna eklendi
+
+**Migration 010: Bölüm Başkanı Kullanıcısı**
+- Bildirim seeder'ının çalışması için Bölüm Başkanı kullanıcısı oluşturma scripti
+
+**Migration 011: Kullanicilar Foreign Keys**
+- `kullanicilar` tablosuna `ogrenci_id` sütunu eklendi
+- `akademik_personel_id` için foreign key constraint eklendi
+- `ogrenci_id` için foreign key constraint eklendi
+- CHECK constraint: Kullanıcı ya akademik personel ya da öğrenci olabilir (ikisi birden olamaz)
+- `Ogrenci` rolü eklendi
 

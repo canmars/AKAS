@@ -181,7 +181,8 @@ CREATE INDEX IF NOT EXISTS idx_kullanici_aktiviteleri_login ON public.kullanici_
 -- OGRENCI SON LOGIN
 CREATE INDEX IF NOT EXISTS idx_ogrenci_son_login_ogrenci ON public.ogrenci_son_login(ogrenci_id);
 CREATE INDEX IF NOT EXISTS idx_ogrenci_son_login_tarih ON public.ogrenci_son_login(son_login) WHERE son_login IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_ogrenci_son_login_eski ON public.ogrenci_son_login(son_login) WHERE son_login < CURRENT_DATE - INTERVAL '6 months';
+-- NOT: idx_ogrenci_son_login_eski index'i kaldırıldı - CURRENT_DATE IMMUTABLE olmadığı için index predicate'inde kullanılamaz
+-- Hayalet öğrenci sorguları için son_login üzerindeki genel index yeterlidir
 
 -- ============================================
 -- COMMENTS
@@ -216,7 +217,8 @@ CREATE INDEX IF NOT EXISTS idx_ogrenci_ad_soyad ON public.ogrenci(ad, soyad);
 CREATE INDEX IF NOT EXISTS idx_ogrenci_danisman ON public.ogrenci(danisman_id) WHERE danisman_id IS NOT NULL;
 -- Hayalet Takibi: Son giriş tarihi bazlı sorgular için
 CREATE INDEX IF NOT EXISTS idx_ogrenci_son_login ON public.ogrenci(son_login) WHERE son_login IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_ogrenci_son_login_eski ON public.ogrenci(son_login) WHERE son_login < CURRENT_DATE - INTERVAL '180 days';
+-- NOT: idx_ogrenci_son_login_eski index'i kaldırıldı - CURRENT_DATE IMMUTABLE olmadığı için index predicate'inde kullanılamaz
+-- Hayalet öğrenci sorguları için son_login üzerindeki genel index yeterlidir
 
 COMMENT ON TABLE public.ogrenci_risk_analizi IS 'Öğrenci risk analizi kayıtları';
 COMMENT ON TABLE public.ogrenci_durum_gecmisi IS 'Öğrenci durum değişiklik geçmişi';

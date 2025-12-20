@@ -33,9 +33,13 @@ def get_kayit_tarihi(program_turu_kodu):
 def get_son_login_tarihi(kayit_tarihi, hayalet_mi=False):
     """Son login tarihi döndür"""
     if hayalet_mi:
-        # 6+ ay önce
-        return kayit_tarihi + timedelta(days=random.randint(1, 30))
+        # Hayalet öğrenci: 180-365 gün önce (6-12 ay arası)
+        # Kayıt tarihinden sonra ama 180+ gün önce olmalı
+        min_days_ago = 180
+        max_days_ago = 365
+        days_ago = random.randint(min_days_ago, max_days_ago)
+        return datetime.now() - timedelta(days=days_ago)
     else:
-        # Son 6 ay içinde
+        # Normal öğrenci: Son 6 ay içinde (1-180 gün arası)
         return datetime.now() - timedelta(days=random.randint(1, 180))
 

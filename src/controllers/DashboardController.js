@@ -14,6 +14,16 @@ export class DashboardController {
 
   async init() {
     try {
+      // Önceki sayfayı temizle
+      if (this.page) {
+        this.page.destroy();
+      }
+      
+      // Container'ı temizle
+      if (this.view.container) {
+        this.view.container.innerHTML = '';
+      }
+      
       // Dashboard sayfasını oluştur
       this.page = new DashboardPage(this.view.container);
       
@@ -21,46 +31,51 @@ export class DashboardController {
       await this.loadDashboardData();
     } catch (error) {
       console.error('Dashboard init error:', error);
-      this.view.showError('Dashboard yüklenirken bir hata oluştu.');
+      if (this.view.container) {
+        this.view.container.innerHTML = `<div class="error-message">Dashboard yüklenirken bir hata oluştu: ${error.message}</div>`;
+      }
     }
   }
 
   async loadDashboardData() {
     try {
+      if (!this.page) {
+        console.error('Dashboard page not initialized');
+        return;
+      }
+
       this.page.showLoading();
 
-      // Paralel olarak tüm verileri yükle
+      // Paralel olarak tüm verileri yükle (sadece grafikler için gerekli olanlar)
       const [
         kpiResponse,
-        riskDagilimiResponse,
-        programDagilimiResponse,
-        kritikOgrencilerResponse,
+        surecHattiResponse,
         danismanYukResponse,
-        bildirimlerResponse
+        riskDagilimiResponse,
+        programDagilimiResponse
       ] = await Promise.all([
         ApiService.getKPIMetrics(),
-        ApiService.getRiskDagilimi(),
-        ApiService.getProgramDagilimi(),
-        ApiService.getKritikOgrenciler(10),
+        ApiService.getSurecHatti(),
         ApiService.getDanismanYuk(),
-        ApiService.getBildirimler(20)
+        ApiService.getRiskDagilimi(),
+        ApiService.getProgramDagilimi()
       ]);
 
-      // Verileri sayfaya aktar
+      // Verileri sayfaya aktar (veri yoksa bile render et)
       this.page.render({
-        kpi: kpiResponse.data,
-        riskDagilimi: riskDagilimiResponse.data,
-        programDagilimi: programDagilimiResponse.data,
-        kritikOgrenciler: kritikOgrencilerResponse.data,
-        danismanYuk: danismanYukResponse.data,
-        bildirimler: bildirimlerResponse.data
+        kpi: kpiResponse?.data || {},
+        surecHattiData: surecHattiResponse?.data || [],
+        danismanYuk: danismanYukResponse?.data || [],
+        riskDagilimi: riskDagilimiResponse?.data || {},
+        programDagilimi: programDagilimiResponse?.data || []
       });
 
       this.page.hideLoading();
     } catch (error) {
       console.error('Dashboard data load error:', error);
-      this.page.showError('Veriler yüklenirken bir hata oluştu.');
-      this.page.hideLoading();
+      if (this.page) {
+        this.page.showError(`Veriler yüklenirken bir hata oluştu: ${error.message}`);
+      }
     }
   }
 

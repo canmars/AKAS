@@ -116,6 +116,18 @@ class ApiService {
     return this.get('/dashboard/bildirimler', { limit });
   }
 
+  static async getAttritionData() {
+    return this.get('/dashboard/attrition-data');
+  }
+
+  static async getBottleneckData() {
+    return this.get('/dashboard/bottleneck-data');
+  }
+
+  static async getSurecHatti() {
+    return this.get('/dashboard/surec-hatti');
+  }
+
   // ============================================
   // Öğrenci API
   // ============================================

@@ -4,23 +4,30 @@
  */
 
 import { AppView } from '../views/AppView.js';
+import { MainLayout } from '../views/layouts/MainLayout.js';
 import { DashboardController } from './DashboardController.js';
 
 export class AppController {
   constructor(containerId) {
     this.containerId = containerId;
     this.view = new AppView(containerId);
+    this.mainLayout = null;
     this.dashboardController = null;
     
     this.init();
   }
 
   init() {
+    // MainLayout oluştur
+    this.mainLayout = new MainLayout(this.view.container);
+    
     // Routing yapısı
     this.setupRouting();
-    
-    // İlk sayfayı yükle
-    this.navigateTo('/dashboard');
+  }
+
+  navigateTo(path) {
+    window.location.hash = path;
+    this.handleRoute();
   }
 
   setupRouting() {
@@ -52,36 +59,62 @@ export class AppController {
   }
 
   showOgrenciDetay(ogrenciId) {
+    const mainContainer = this.mainLayout.getMainContainer();
     import('../views/pages/OgrenciDetayPage.js').then(({ OgrenciDetayPage }) => {
-      this.view.clear();
-      new OgrenciDetayPage(this.view.container, ogrenciId);
+      mainContainer.innerHTML = '';
+      new OgrenciDetayPage(mainContainer, ogrenciId);
     });
   }
 
   showRiskAnalizi() {
+    const mainContainer = this.mainLayout.getMainContainer();
     import('../views/pages/RiskAnaliziPage.js').then(({ RiskAnaliziPage }) => {
-      this.view.clear();
-      new RiskAnaliziPage(this.view.container);
+      mainContainer.innerHTML = '';
+      new RiskAnaliziPage(mainContainer);
     });
   }
 
   showWhatIf() {
+    const mainContainer = this.mainLayout.getMainContainer();
     import('../views/pages/WhatIfPage.js').then(({ WhatIfPage }) => {
-      this.view.clear();
-      new WhatIfPage(this.view.container);
+      mainContainer.innerHTML = '';
+      new WhatIfPage(mainContainer);
     });
   }
 
   showDashboard() {
-    if (!this.dashboardController) {
-      this.dashboardController = new DashboardController(this.view);
+    // MainLayout'un main container'ını al
+    const mainContainer = this.mainLayout.getMainContainer();
+    
+    if (!mainContainer) {
+      console.error('Main container not found');
+      return;
     }
+    
+    // AppView'ı main container ile güncelle
+    const dashboardView = {
+      container: mainContainer,
+      showError: (message) => {
+        if (mainContainer) {
+          mainContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+      }
+    };
+    
+    // Her seferinde yeni controller oluştur (temiz başlangıç için)
+    if (this.dashboardController) {
+      this.dashboardController.destroy();
+    }
+    this.dashboardController = new DashboardController(dashboardView);
     this.dashboardController.init();
   }
 
   destroy() {
     if (this.dashboardController) {
       this.dashboardController.destroy();
+    }
+    if (this.mainLayout) {
+      this.mainLayout.destroy();
     }
   }
 }

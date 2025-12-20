@@ -14,6 +14,8 @@ export class OgrenciController {
       const filters = {
         program_turu_id: req.query.program_turu_id,
         durum_id: req.query.durum_id,
+        danisman_id: req.query.danisman_id,
+        mevcut_asinama: req.query.mevcut_asinama,
         min_risk_skoru: req.query.min_risk_skoru ? parseInt(req.query.min_risk_skoru) : undefined,
         max_risk_skoru: req.query.max_risk_skoru ? parseInt(req.query.max_risk_skoru) : undefined
       };

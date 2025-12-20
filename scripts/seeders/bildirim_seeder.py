@@ -36,22 +36,30 @@ def seed_bildirimler(ogrenci_ids):
     # Kritik risk altındaki öğrenciler için bildirim
     for ogrenci in ogrenci_ids:
         if ogrenci.get('hayalet_mi', False):
-            # Hayalet öğrenci bildirimi
-            supabase.table('bildirimler').insert({
-                'bildirim_turu_id': bildirim_turleri.get('Hayalet_Ogrenci'),
-                'ogrenci_id': ogrenci['ogrenci_id'],
-                'alici_kullanici_id': bolum_baskani_id,
-                'alici_rol': 'Bolum_Baskani',
-                'mesaj': f'Öğrenci {ogrenci["ogrenci_id"][:8]} 6+ aydır login olmamış (Hayalet öğrenci)',
-                'bildirim_onceligi': 'Kritik',
-                'bildirim_durumu': 'Olusturuldu',
-                'okundu_mi': False
-            }).execute()
+            ogrenci_id = ogrenci.get('ogrenci_id')
             
-            bildirim_sayisi += 1
+            if not ogrenci_id:
+                continue
+            
+            try:
+                response = supabase.table('bildirimler').insert({
+                    'bildirim_turu_id': bildirim_turleri.get('Hayalet_Ogrenci'),
+                    'ogrenci_id': ogrenci_id,
+                    'alici_kullanici_id': bolum_baskani_id,
+                    'alici_rol': 'Bolum_Baskani',
+                    'mesaj': f'Öğrenci {str(ogrenci_id)[:8]} 6+ aydır login olmamış (Hayalet öğrenci)',
+                    'bildirim_onceligi': 'Kritik',
+                    'bildirim_durumu': 'Olusturuldu',
+                    'okundu_mi': False
+                }).execute()
+                
+                if response.data:
+                    bildirim_sayisi += 1
+            except Exception as e:
+                # Sessizce atla
+                pass
     
     print(f"✅ Toplam {bildirim_sayisi} bildirim eklendi")
 
 if __name__ == '__main__':
     print("⚠️  Bu seeder'ı doğrudan çalıştırmayın. seed.py üzerinden çalıştırın.")
-

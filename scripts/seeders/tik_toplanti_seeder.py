@@ -26,7 +26,15 @@ def seed_tik_toplantilari(ogrenci_ids):
         # Her öğrenci için 6 ayda bir toplantı (son 2 yıl için)
         kayit_tarihi = ogrenci['kayit_tarihi']
         if isinstance(kayit_tarihi, str):
-            kayit_tarihi = datetime.fromisoformat(kayit_tarihi.split('T')[0])
+            try:
+                kayit_tarihi = datetime.fromisoformat(kayit_tarihi.split('T')[0])
+            except:
+                # Tarih formatı farklıysa parse et
+                try:
+                    kayit_tarihi = datetime.strptime(kayit_tarihi.split('T')[0], '%Y-%m-%d')
+                except:
+                    print(f"    ⚠️  Tarih parse edilemedi (ogrenci_id: {ogrenci['ogrenci_id']}), atlanıyor")
+                    continue
         
         # İlk toplantı: Tez önerisi onaylandıktan sonra 6 ay içinde
         # Basitleştirilmiş: Kayıt tarihinden 1 yıl sonra başla
@@ -44,17 +52,22 @@ def seed_tik_toplantilari(ogrenci_ids):
                 katilim_durumu = None
                 rapor_verildi_mi = False
             
-            supabase.table('tik_toplantilari').insert({
-                'ogrenci_id': ogrenci['ogrenci_id'],
-                'toplanti_tarihi': toplanti_tarihi.isoformat().split('T')[0],
-                'katilim_durumu': katilim_durumu,
-                'rapor_verildi_mi': rapor_verildi_mi,
-                'uyari_gonderildi_mi': False
-            }).execute()
-            
-            toplanti_sayisi += 1
+            try:
+                response = supabase.table('tik_toplantilari').insert({
+                    'ogrenci_id': ogrenci['ogrenci_id'],
+                    'toplanti_tarihi': toplanti_tarihi.isoformat().split('T')[0],
+                    'katilim_durumu': katilim_durumu,
+                    'rapor_verildi_mi': rapor_verildi_mi,
+                    'uyari_gonderildi_mi': False
+                }).execute()
+                
+                if response.data:
+                    toplanti_sayisi += 1
+            except Exception as e:
+                # Sessizce atla, çok fazla mesaj yazdırmayalım
+                pass
         
-        if toplanti_sayisi % 20 == 0:
+        if toplanti_sayisi > 0 and toplanti_sayisi % 20 == 0:
             print(f"    ✅ {toplanti_sayisi} toplantı eklendi")
     
     print(f"✅ Toplam {toplanti_sayisi} TİK toplantısı eklendi")
