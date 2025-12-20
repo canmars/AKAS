@@ -53,6 +53,12 @@ export class AppController {
       this.showRiskAnalizi();
     } else if (hash.startsWith('/what-if')) {
       this.showWhatIf();
+    } else if (hash.startsWith('/admin/veri-yukleme')) {
+      this.showAdminVeriYukleme();
+    } else if (hash.startsWith('/ogrenci/dashboard')) {
+      this.showOgrenciDashboard();
+    } else if (hash.startsWith('/danisman/dashboard')) {
+      this.showDanismanDashboard();
     } else {
       this.showDashboard();
     }
@@ -79,6 +85,33 @@ export class AppController {
     import('../views/pages/WhatIfPage.js').then(({ WhatIfPage }) => {
       mainContainer.innerHTML = '';
       new WhatIfPage(mainContainer);
+    });
+  }
+
+  showAdminVeriYukleme() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/AdminVeriYuklemePage.js').then(({ AdminVeriYuklemePage }) => {
+      mainContainer.innerHTML = '';
+      const page = new AdminVeriYuklemePage(mainContainer);
+      page.render();
+    });
+  }
+
+  showOgrenciDashboard() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/OgrenciDashboardPage.js').then(({ OgrenciDashboardPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new OgrenciDashboardPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showDanismanDashboard() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/DanismanDashboardPage.js').then(({ DanismanDashboardPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new DanismanDashboardPage(mainContainer);
+      page.init();
     });
   }
 

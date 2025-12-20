@@ -53,5 +53,11 @@ router.get('/bottleneck-data', DashboardController.getBottleneckData);
 // Süreç Hattı (DB mevcut aşama)
 router.get('/surec-hatti', DashboardController.getSurecHatti);
 
+// Öğrenci Dashboard
+router.get('/ogrenci', DashboardController.getOgrenciDashboard);
+
+// Danışman Dashboard
+router.get('/danisman', DashboardController.getDanismanDashboard);
+
 export default router;
 

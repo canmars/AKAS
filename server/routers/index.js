@@ -10,6 +10,7 @@ import akademikPersonelRoutes from './akademikPersonelRoutes.js';
 import riskAnaliziRoutes from './riskAnaliziRoutes.js';
 import bildirimRoutes from './bildirimRoutes.js';
 import whatIfRoutes from './whatIfRoutes.js';
+import excelUploadRoutes from './excelUploadRoutes.js';
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ router.use('/akademik-personel', akademikPersonelRoutes);
 router.use('/risk-analizi', riskAnaliziRoutes);
 router.use('/bildirim', bildirimRoutes);
 router.use('/what-if', whatIfRoutes);
+router.use('/admin/excel-upload', excelUploadRoutes);
 
 export default router;
 

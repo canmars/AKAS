@@ -149,6 +149,48 @@ class ApiService {
   static async runSimulation(simulationData) {
     return this.post('/what-if/simulasyon', simulationData);
   }
+
+  // ============================================
+  // Excel Upload API
+  // ============================================
+  static async uploadExcel(file) {
+    const formData = new FormData();
+    formData.append('excelFile', file);
+
+    const token = localStorage.getItem('auth_token');
+    const url = `${API_BASE_URL}/admin/excel-upload/upload`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Excel yükleme başarısız');
+    }
+
+    return data;
+  }
+
+  static async getUploadHistory(limit = 20) {
+    return this.get('/admin/excel-upload/history', { limit });
+  }
+
+  // ============================================
+  // Dashboard API (Rol Bazlı)
+  // ============================================
+  static async getOgrenciDashboard() {
+    return this.get('/dashboard/ogrenci');
+  }
+
+  static async getDanismanDashboard() {
+    return this.get('/dashboard/danisman');
+  }
 }
 
 export default ApiService;
