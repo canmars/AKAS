@@ -3,6 +3,9 @@
  * Uygulama giriş noktası
  */
 
+// Tailwind CSS ve Global Styles
+import './styles/global.css';
+
 import { AppController } from './controllers/AppController.js';
 import { APP_CONFIG } from './utils/constants.js';
 

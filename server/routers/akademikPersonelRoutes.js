@@ -18,5 +18,12 @@ router.get('/', AkademikPersonelController.getAll);
 // Akademik personel detayı
 router.get('/:id', AkademikPersonelController.getById);
 
+// Kapasite yönetimi
+router.get('/kapasite', AkademikPersonelController.getKapasite);
+router.post('/:id/kapasite', AkademikPersonelController.updateKapasite);
+
+// Danışman önerisi
+router.post('/oner-danisman', AkademikPersonelController.onerDanisman);
+
 export default router;
 

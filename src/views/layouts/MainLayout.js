@@ -10,10 +10,12 @@ export class MainLayout {
     this.currentRoute = null;
     this.sidebarOpen = false;
     this.userRole = null;
+    this.notificationBell = null;
     this.render();
     this.loadUserRole();
     this.setupNavigation();
     this.setupMobileMenu();
+    this.setupNotificationBell();
   }
 
   async loadUserRole() {
@@ -43,11 +45,18 @@ export class MainLayout {
 
     // Bölüm Başkanı ve Admin menüleri
     if (this.userRole === 'Bolum_Baskani' || this.userRole === 'Admin') {
+      // Ana menü öğeleri
       menuItems.push(
-        { route: '/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-        { route: '/admin/veri-yukleme', label: 'Veri Yükleme', icon: 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12', roles: ['Admin', 'Bolum_Baskani'] },
-        { route: '/what-if', label: 'What-If Analizi', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-        { route: '/risk-analizi', label: 'Risk Analizi', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' }
+        { route: '/dashboard', label: 'Overview', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+        { route: '/ogrenci', label: 'Öğrenci Takibi', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+        { route: '/milestone', label: 'Tez Süreçleri', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { route: '/danisman/dashboard', label: 'Akademisyen Yükü', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+        { route: '/basvurular', label: 'Başvurular', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
+      );
+
+      // Ayarlar
+      menuItems.push(
+        { route: '/ayarlar', label: 'Ayarlar', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
       );
     }
 
@@ -65,18 +74,68 @@ export class MainLayout {
       );
     }
 
-    // Menü öğelerini render et
-    navContainer.innerHTML = menuItems.map(item => `
-      <a href="#${item.route}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="${item.route}">
-        <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}" />
-        </svg>
-        <span class="font-medium">${item.label}</span>
-      </a>
-    `).join('');
+    // Menü öğelerini render et - Ayarlar'dan önce ayırıcı ekle
+    let menuHTML = '';
+    let settingsIndex = menuItems.findIndex(item => item.label === 'Ayarlar');
+    
+    menuItems.forEach((item, index) => {
+      // Ayarlar'dan önce ayırıcı ekle
+      if (index === settingsIndex && settingsIndex > 0) {
+        menuHTML += '<div class="my-4 border-t border-slate-200"></div>';
+      }
+      
+      menuHTML += `
+        <a href="#${item.route}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group" data-route="${item.route}">
+          <svg class="w-5 h-5 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}" />
+          </svg>
+          <span class="font-medium">${item.label}</span>
+        </a>
+      `;
+    });
+    
+    navContainer.innerHTML = menuHTML;
 
     // Menü event listener'larını yeniden bağla
     this.setupNavigation();
+    
+    // Notification bell'i yeniden başlat
+    this.setupNotificationBell();
+  }
+
+  setupNotificationBell() {
+    // Desktop notification bell
+    const desktopActions = document.getElementById('header-actions');
+    const mobileActions = document.getElementById('mobile-header-actions');
+    
+    if (desktopActions && !desktopActions.querySelector('.notification-bell-container')) {
+      const bellContainer = document.createElement('div');
+      bellContainer.className = 'notification-bell-container';
+      desktopActions.appendChild(bellContainer);
+      
+      import('../components/NotificationBell.js').then(({ NotificationBell }) => {
+        this.notificationBell = new NotificationBell(bellContainer, {
+          onNotificationClick: (notificationId) => {
+            // Bildirime tıklandığında ilgili sayfaya yönlendir
+            window.location.hash = '/bildirimler';
+          }
+        });
+      });
+    }
+    
+    if (mobileActions && !mobileActions.querySelector('.notification-bell-container')) {
+      const mobileBellContainer = document.createElement('div');
+      mobileBellContainer.className = 'notification-bell-container';
+      mobileActions.appendChild(mobileBellContainer);
+      
+      import('../components/NotificationBell.js').then(({ NotificationBell }) => {
+        this.mobileNotificationBell = new NotificationBell(mobileBellContainer, {
+          onNotificationClick: (notificationId) => {
+            window.location.hash = '/bildirimler';
+          }
+        });
+      });
+    }
   }
 
   render() {
@@ -135,6 +194,16 @@ export class MainLayout {
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden lg:ml-0">
+          <!-- Desktop Header -->
+          <header class="hidden lg:flex bg-white border-b border-slate-200 px-6 py-4 items-center justify-between sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+              <h2 class="text-lg font-semibold text-slate-900" id="page-title">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-4" id="header-actions">
+              <!-- Notification bell will be rendered here -->
+            </div>
+          </header>
+          
           <!-- Mobile Header -->
           <header class="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
             <button id="mobile-menu-btn" class="text-slate-600 hover:text-slate-900">
@@ -143,7 +212,9 @@ export class MainLayout {
               </svg>
             </button>
             <h1 class="text-lg font-bold text-slate-900">YİANS</h1>
-            <div class="w-6"></div>
+            <div id="mobile-header-actions" class="flex items-center">
+              <!-- Mobile notification bell will be rendered here -->
+            </div>
           </header>
           
           <!-- Main Content Area -->
@@ -296,7 +367,7 @@ export class MainLayout {
     navItems.forEach(item => {
       const route = item.getAttribute('data-route');
       if (currentHash === route || currentHash.startsWith(route + '/')) {
-        item.classList.add('active', 'bg-blue-50', 'text-blue-700', 'border-l-2', 'border-blue-600');
+        item.classList.add('active', 'bg-indigo-50', 'text-indigo-700', 'border-l-2', 'border-indigo-600');
         item.classList.remove('text-slate-600');
       }
     });
@@ -309,6 +380,12 @@ export class MainLayout {
   }
 
   destroy() {
+    if (this.notificationBell) {
+      this.notificationBell.destroy();
+    }
+    if (this.mobileNotificationBell) {
+      this.mobileNotificationBell.destroy();
+    }
     this.container.innerHTML = '';
   }
 }

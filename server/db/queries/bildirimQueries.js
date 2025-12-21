@@ -69,6 +69,21 @@ export const bildirimQueries = {
     if (error) throw error;
 
     return data;
+  },
+
+  /**
+   * Okunmamış bildirim sayısı
+   */
+  async getOkunmamisSayisi(kullaniciId) {
+    const { count, error } = await supabaseAdmin
+      .from('bildirimler')
+      .select('*', { count: 'exact', head: true })
+      .eq('alici_kullanici_id', kullaniciId)
+      .eq('okundu_mi', false);
+
+    if (error) throw error;
+
+    return count || 0;
   }
 };
 

@@ -21,5 +21,8 @@ router.get('/:id', BildirimController.getById);
 // Bildirimi okundu işaretle
 router.patch('/:id/okundu', BildirimController.markAsRead);
 
+// Okunmamış bildirim sayısı
+router.get('/okunmamis-sayisi', BildirimController.getOkunmamisSayisi);
+
 export default router;
 

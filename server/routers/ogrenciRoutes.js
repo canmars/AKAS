@@ -36,5 +36,18 @@ router.get('/:id', OgrenciController.getById);
 // Öğrenci risk analizi
 router.get('/:id/risk-analizi', OgrenciController.getRiskAnalizi);
 
+// Öğrenci yarıyıl hesaplama
+router.get('/:id/yariyil', OgrenciController.getYariyil);
+
+// Öğrenci durum geçişi (sadece Admin)
+router.patch('/:id/durum', OgrenciController.updateDurum);
+
+// Öğrenci durum geçmişi
+router.get('/:id/durum-gecmisi', OgrenciController.getDurumGecmisi);
+
+// Öğrenci tez dönem kayıtları (Tezli YL)
+router.get('/:id/tez-donem-kayitlari', OgrenciController.getTezDonemKayitlari);
+router.post('/:id/tez-donem-kayitlari', OgrenciController.createTezDonemKayit);
+
 export default router;
 

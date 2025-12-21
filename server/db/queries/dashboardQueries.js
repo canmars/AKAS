@@ -71,8 +71,18 @@ export const dashboardQueries = {
       }
     }
 
+    // Risk seviyelerine göre ayrı sayılar
+    const kritikRisk = viewData.filter(o => o.mevcut_risk_skoru >= 85).length;
+    const yuksekRisk = viewData.filter(o => o.mevcut_risk_skoru >= 70 && o.mevcut_risk_skoru < 85).length;
+    const ortaRisk = viewData.filter(o => o.mevcut_risk_skoru >= 40 && o.mevcut_risk_skoru < 70).length;
+    const dusukRisk = viewData.filter(o => o.mevcut_risk_skoru < 40).length;
+
     return {
       toplamRiskli,
+      kritikRisk,
+      yuksekRisk,
+      ortaRisk,
+      dusukRisk,
       kritikDarbogaz: kritikDarbogazSayisi,
       kapasiteAlarmi: kapasiteAlarmSayisi,
       hayaletOgrenci: hayaletOgrenciSayisi,
@@ -118,16 +128,43 @@ export const dashboardQueries = {
     // program_turu_id bilgisini de döndürüyoruz.
     const { data: ogrenciler, error: ogrenciError } = await supabaseAdmin
       .from('ogrenci')
-      .select('program_turu_id')
+      .select('ogrenci_id, program_turu_id')
       .eq('soft_delete', false)
       .not('program_turu_id', 'is', null);
 
     if (ogrenciError) throw ogrenciError;
 
+    // Öğrenci ID'lerini al
+    const ogrenciIds = ogrenciler.map(o => o.ogrenci_id);
+    
+    // Risk skorlarını al
+    const { data: riskData, error: riskError } = await supabaseAdmin
+      .from('ogrenci_mevcut_durum_view')
+      .select('ogrenci_id, mevcut_risk_skoru')
+      .in('ogrenci_id', ogrenciIds);
+
+    if (riskError) throw riskError;
+
+    // Risk skorlarını map'le
+    const riskMap = {};
+    riskData.forEach(r => {
+      riskMap[r.ogrenci_id] = r.mevcut_risk_skoru || 0;
+    });
+
+    // Program bazında sayıları hesapla
     const countMap = {};
+    const kritikRiskMap = {};
+    
     ogrenciler.forEach(o => {
       if (!o.program_turu_id) return;
-      countMap[o.program_turu_id] = (countMap[o.program_turu_id] || 0) + 1;
+      const programId = o.program_turu_id;
+      countMap[programId] = (countMap[programId] || 0) + 1;
+      
+      // Kritik risk sayısını hesapla (risk skoru >= 85)
+      const riskSkoru = riskMap[o.ogrenci_id] || 0;
+      if (riskSkoru >= 85) {
+        kritikRiskMap[programId] = (kritikRiskMap[programId] || 0) + 1;
+      }
     });
 
     const programIds = Object.keys(countMap);
@@ -145,7 +182,8 @@ export const dashboardQueries = {
         program_turu_id: p.program_turu_id,
         program_adi: p.program_adi,
         program_kodu: p.program_kodu,
-        ogrenci_sayisi: countMap[p.program_turu_id] || 0
+        ogrenci_sayisi: countMap[p.program_turu_id] || 0,
+        kritik_risk: kritikRiskMap[p.program_turu_id] || 0
       }))
       .filter(x => x.ogrenci_sayisi > 0)
       .sort((a, b) => b.ogrenci_sayisi - a.ogrenci_sayisi);
@@ -267,7 +305,8 @@ export const dashboardQueries = {
 
       return {
         ...p,
-        kapasiteKullanimYuzdesi: (p.mevcut_yuk / p.maksimum_kapasite) * 100,
+        kapasite_kullanim_yuzdesi: (p.mevcut_yuk / p.maksimum_kapasite) * 100,
+        kapasiteKullanimYuzdesi: (p.mevcut_yuk / p.maksimum_kapasite) * 100, // Alias
         sert_limit,
         yumusak_limit,
         limit_asildi_mi,

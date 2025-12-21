@@ -60,5 +60,22 @@ export class BildirimController {
       next(error);
     }
   }
+
+  /**
+   * Okunmamış bildirim sayısı
+   * GET /api/bildirim/okunmamis-sayisi
+   */
+  static async getOkunmamisSayisi(req, res, next) {
+    try {
+      const sayi = await bildirimQueries.getOkunmamisSayisi(req.user.id);
+      
+      res.json({
+        success: true,
+        data: { okunmamis_sayisi: sayi }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 

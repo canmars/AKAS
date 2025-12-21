@@ -65,18 +65,41 @@ export class AppController {
     } else if (hash === '/dashboard') {
       this.showDashboard();
     } else if (hash.startsWith('/ogrenci/')) {
-      const ogrenciId = hash.split('/')[2];
-      this.showOgrenciDetay(ogrenciId);
+      const parts = hash.split('/');
+      if (parts.length >= 3 && parts[2] !== 'dashboard') {
+        const ogrenciId = parts[2];
+        this.showOgrenciDetay(ogrenciId);
+      } else {
+        this.showOgrenciDashboard();
+      }
     } else if (hash.startsWith('/risk-analizi')) {
-      this.showRiskAnalizi();
+      this.showRiskAnaliziTableau();
     } else if (hash.startsWith('/what-if')) {
       this.showWhatIf();
     } else if (hash.startsWith('/admin/veri-yukleme')) {
       this.showAdminVeriYukleme();
     } else if (hash.startsWith('/ogrenci/dashboard')) {
       this.showOgrenciDashboard();
-    } else if (hash.startsWith('/danisman/dashboard')) {
-      this.showDanismanDashboard();
+    } else if (hash.startsWith('/danisman/dashboard') || hash.startsWith('/akademisyen-yuku')) {
+      this.showAkademisyenYuku();
+    } else if (hash.startsWith('/stratejik-analiz')) {
+      this.showStratejikAnaliz();
+    } else if (hash.startsWith('/performans-raporlari')) {
+      this.showPerformansRaporlari();
+    } else if (hash.startsWith('/veri-kalitesi')) {
+      this.showVeriKalitesi();
+    } else if (hash.startsWith('/akademik-takvim')) {
+      this.showAkademikTakvim();
+    } else if (hash.startsWith('/milestone/tik')) {
+      this.showTikToplantiTakvimi();
+    } else if (hash.startsWith('/milestone')) {
+      this.showMilestoneYonetim();
+    } else if (hash.startsWith('/ogrenci') && !hash.startsWith('/ogrenci/') && !hash.startsWith('/ogrenci/dashboard')) {
+      this.showOgrenciTakibi();
+    } else if (hash.startsWith('/basvurular')) {
+      this.showBasvurular();
+    } else if (hash.startsWith('/ayarlar')) {
+      this.showAyarlar();
     } else {
       this.showDashboard();
     }
@@ -97,17 +120,22 @@ export class AppController {
 
   showOgrenciDetay(ogrenciId) {
     const mainContainer = this.mainLayout.getMainContainer();
-    import('../views/pages/OgrenciDetayPage.js').then(({ OgrenciDetayPage }) => {
+    // Tableau style öğrenci detay sayfası
+    import('../views/pages/OgrenciDetayPageTableau.js').then(({ OgrenciDetayPageTableau }) => {
       mainContainer.innerHTML = '';
-      new OgrenciDetayPage(mainContainer, ogrenciId);
+      new OgrenciDetayPageTableau(mainContainer, ogrenciId);
     });
   }
 
   showRiskAnalizi() {
+    this.showRiskAnaliziTableau();
+  }
+
+  showRiskAnaliziTableau() {
     const mainContainer = this.mainLayout.getMainContainer();
-    import('../views/pages/RiskAnaliziPage.js').then(({ RiskAnaliziPage }) => {
+    import('../views/pages/RiskAnaliziPageTableau.js').then(({ RiskAnaliziPageTableau }) => {
       mainContainer.innerHTML = '';
-      new RiskAnaliziPage(mainContainer);
+      new RiskAnaliziPageTableau(mainContainer);
     });
   }
 
@@ -139,9 +167,99 @@ export class AppController {
 
   showDanismanDashboard() {
     const mainContainer = this.mainLayout.getMainContainer();
-    import('../views/pages/DanismanDashboardPage.js').then(({ DanismanDashboardPage }) => {
+    // Tableau style dashboard kullan
+    import('../views/pages/DanismanDashboardPageTableau.js').then(({ DanismanDashboardPageTableau }) => {
       mainContainer.innerHTML = '';
-      const page = new DanismanDashboardPage(mainContainer);
+      const page = new DanismanDashboardPageTableau(mainContainer);
+      page.init();
+    });
+  }
+
+  showAkademisyenYuku() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/AkademisyenYukuPage.js').then(({ AkademisyenYukuPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new AkademisyenYukuPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showStratejikAnaliz() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/StratejikAnalizPage.js').then(({ StratejikAnalizPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new StratejikAnalizPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showPerformansRaporlari() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/PerformansRaporlariPage.js').then(({ PerformansRaporlariPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new PerformansRaporlariPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showVeriKalitesi() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/VeriKalitesiPage.js').then(({ VeriKalitesiPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new VeriKalitesiPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showAkademikTakvim() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/AkademikTakvimPage.js').then(({ AkademikTakvimPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new AkademikTakvimPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showTikToplantiTakvimi() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/TikToplantiTakvimiPage.js').then(({ TikToplantiTakvimiPage }) => {
+      mainContainer.innerHTML = '';
+      new TikToplantiTakvimiPage(mainContainer);
+    });
+  }
+
+  showMilestoneYonetim() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/MilestoneYonetimPage.js').then(({ MilestoneYonetimPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new MilestoneYonetimPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showOgrenciTakibi() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/OgrenciTakibiPage.js').then(({ OgrenciTakibiPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new OgrenciTakibiPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showBasvurular() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/BasvurularPage.js').then(({ BasvurularPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new BasvurularPage(mainContainer);
+      page.init();
+    });
+  }
+
+  showAyarlar() {
+    const mainContainer = this.mainLayout.getMainContainer();
+    import('../views/pages/AyarlarPage.js').then(({ AyarlarPage }) => {
+      mainContainer.innerHTML = '';
+      const page = new AyarlarPage(mainContainer);
       page.init();
     });
   }
@@ -155,22 +273,31 @@ export class AppController {
       return;
     }
     
-    // AppView'ı main container ile güncelle
-    const dashboardView = {
-      container: mainContainer,
-      showError: (message) => {
-        if (mainContainer) {
-          mainContainer.innerHTML = `<div class="error-message">${message}</div>`;
-        }
-      }
-    };
+    // Kullanıcı rolüne göre dashboard sayfasını seç
+    const userRole = localStorage.getItem('user_role') || 'Bolum_Baskani';
     
-    // Her seferinde yeni controller oluştur (temiz başlangıç için)
-    if (this.dashboardController) {
-      this.dashboardController.destroy();
+    // Rol bazlı dashboard routing
+    if (userRole === 'Bolum_Baskani' || userRole === 'Admin') {
+      // Bölüm Başkanı Dashboard (Tableau Style)
+      import('../views/pages/BolumBaskaniDashboardPage.js').then(({ BolumBaskaniDashboardPage }) => {
+        mainContainer.innerHTML = '';
+        const page = new BolumBaskaniDashboardPage(mainContainer);
+        page.init();
+      });
+    } else if (userRole === 'Danisman') {
+      // Danışman Dashboard
+      this.showDanismanDashboard();
+    } else if (userRole === 'Ogrenci') {
+      // Öğrenci Dashboard
+      this.showOgrenciDashboard();
+    } else {
+      // Varsayılan: Bölüm Başkanı Dashboard
+      import('../views/pages/BolumBaskaniDashboardPage.js').then(({ BolumBaskaniDashboardPage }) => {
+        mainContainer.innerHTML = '';
+        const page = new BolumBaskaniDashboardPage(mainContainer);
+        page.init();
+      });
     }
-    this.dashboardController = new DashboardController(dashboardView);
-    this.dashboardController.init();
   }
 
   destroy() {

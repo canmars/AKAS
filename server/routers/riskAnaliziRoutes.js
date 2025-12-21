@@ -15,8 +15,17 @@ router.use(authenticate);
 // Tüm risk analizleri
 router.get('/', RiskAnaliziController.getAll);
 
-// Risk analizi detayı
+// Risk analizi detayı (analiz ID ile)
 router.get('/:id', RiskAnaliziController.getById);
+
+// Öğrenci için risk skoru hesapla
+router.post('/hesapla/:ogrenciId', RiskAnaliziController.hesapla);
+
+// Öğrenci için detaylı risk analizi
+router.get('/ogrenci/:ogrenciId', RiskAnaliziController.getByOgrenciId);
+
+// Risk faktörleri detayı (drill-down)
+router.get('/drill-down/:ogrenciId', RiskAnaliziController.getDrillDown);
 
 export default router;
 

@@ -135,22 +135,28 @@ export class LoginPage {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const result = await response.json();
         
-        // Token'ı sakla
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token);
-        }
-        
-        // Rolü sakla
-        if (data.role) {
-          localStorage.setItem('user_role', data.role);
-        }
+        // Response format: { success: true, data: { token, role, user } }
+        if (result.success && result.data) {
+          // Token'ı sakla
+          if (result.data.token) {
+            localStorage.setItem('auth_token', result.data.token);
+          }
+          
+          // Rolü sakla
+          if (result.data.role) {
+            localStorage.setItem('user_role', result.data.role);
+          }
 
-        // Ana sayfaya yönlendir
-        window.location.hash = this.getRedirectPath(data.role);
+          // Ana sayfaya yönlendir
+          window.location.hash = this.getRedirectPath(result.data.role);
+        } else {
+          throw new Error(result.error?.message || 'Giriş başarısız');
+        }
       } else {
-        throw new Error('Giriş başarısız');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || 'Giriş başarısız');
       }
     } catch (error) {
       console.error('Login hatası:', error);

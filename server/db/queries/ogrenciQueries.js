@@ -272,6 +272,139 @@ export const ogrenciQueries = {
     if (error) throw error;
 
     return data;
+  },
+
+  /**
+   * Öğrenci yarıyıl hesaplama
+   */
+  async getYariyil(ogrenciId) {
+    // Öğrenci kayıt tarihini al
+    const { data: ogrenci, error: ogrenciError } = await supabaseAdmin
+      .from('ogrenci')
+      .select('kayit_tarihi')
+      .eq('ogrenci_id', ogrenciId)
+      .single();
+
+    if (ogrenciError) throw ogrenciError;
+
+    // Yarıyıl hesapla
+    const { data: yariyil, error: yariyilError } = await supabaseAdmin.rpc('calculate_yariyil', {
+      p_kayit_tarihi: ogrenci.kayit_tarihi,
+      p_bugun_tarihi: new Date().toISOString().split('T')[0]
+    });
+
+    if (yariyilError) throw yariyilError;
+
+    return {
+      ogrenci_id: ogrenciId,
+      kayit_tarihi: ogrenci.kayit_tarihi,
+      mevcut_yariyil: yariyil
+    };
+  },
+
+  /**
+   * Öğrenci durum geçişi (sadece Admin)
+   */
+  async updateDurum(ogrenciId, durumId, degisiklikNedeni) {
+    // Mevcut durumu al
+    const { data: ogrenci, error: ogrenciError } = await supabaseAdmin
+      .from('ogrenci')
+      .select('durum_id')
+      .eq('ogrenci_id', ogrenciId)
+      .single();
+
+    if (ogrenciError) throw ogrenciError;
+
+    const eskiDurumId = ogrenci.durum_id;
+
+    // Durumu güncelle
+    const { data: updatedOgrenci, error: updateError } = await supabaseAdmin
+      .from('ogrenci')
+      .update({ durum_id: durumId })
+      .eq('ogrenci_id', ogrenciId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Durum geçmişine kaydet
+    const { data: durumGecmisi, error: gecmisError } = await supabaseAdmin
+      .from('ogrenci_durum_gecmisi')
+      .insert({
+        ogrenci_id: ogrenciId,
+        eski_durum_id: eskiDurumId,
+        yeni_durum_id: durumId,
+        degisiklik_nedeni: degisiklikNedeni || 'Manuel durum değişikliği',
+        otomatik_mi: false
+      })
+      .select()
+      .single();
+
+    if (gecmisError) throw gecmisError;
+
+    return {
+      ogrenci: updatedOgrenci,
+      durum_gecmisi: durumGecmisi
+    };
+  },
+
+  /**
+   * Öğrenci durum geçmişi
+   */
+  async getDurumGecmisi(ogrenciId) {
+    const { data, error } = await supabaseAdmin
+      .from('ogrenci_durum_gecmisi')
+      .select(`
+        *,
+        eski_durum:durum_turleri!ogrenci_durum_gecmisi_eski_durum_id_fkey(*),
+        yeni_durum:durum_turleri!ogrenci_durum_gecmisi_yeni_durum_id_fkey(*)
+      `)
+      .eq('ogrenci_id', ogrenciId)
+      .order('degisiklik_tarihi', { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+  },
+
+  /**
+   * Öğrenci tez dönem kayıtları (Tezli YL)
+   */
+  async getTezDonemKayitlari(ogrenciId) {
+    const { data, error } = await supabaseAdmin
+      .from('tez_donem_kayitlari')
+      .select('*')
+      .eq('ogrenci_id', ogrenciId)
+      .order('yariyil', { ascending: false })
+      .order('akademik_yil', { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+  },
+
+  /**
+   * Tez dönem kaydı oluştur/güncelle
+   */
+  async createTezDonemKayit(ogrenciId, kayitData) {
+    const { data, error } = await supabaseAdmin
+      .from('tez_donem_kayitlari')
+      .upsert({
+        ogrenci_id: ogrenciId,
+        yariyil: kayitData.yariyil,
+        akademik_yil: kayitData.akademik_yil,
+        danisman_degerlendirmesi: kayitData.danisman_degerlendirmesi,
+        degerlendirme_tarihi: new Date().toISOString().split('T')[0],
+        aciklama: kayitData.aciklama
+      }, {
+        onConflict: 'ogrenci_id,yariyil,akademik_yil'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return data;
   }
 };
 
