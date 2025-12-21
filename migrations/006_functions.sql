@@ -112,7 +112,6 @@ DECLARE
   v_toplam_puan NUMERIC := 0;
   v_program_kodu TEXT;
   v_kayit_tarihi DATE;
-  v_kabul_turu TEXT;
   v_mevcut_yariyil INT;
   v_maksimum_yariyil INT;
   v_son_login TIMESTAMP WITH TIME ZONE;
@@ -141,7 +140,6 @@ BEGIN
   SELECT 
     pt.program_kodu,
     o.kayit_tarihi,
-    o.kabul_turu,
     pt.maksimum_sure_yariyil,
     osl.son_login,
     oad.ders_tamamlandi_mi,
@@ -149,7 +147,6 @@ BEGIN
   INTO 
     v_program_kodu,
     v_kayit_tarihi,
-    v_kabul_turu,
     v_maksimum_yariyil,
     v_son_login,
     v_ders_tamamlandi_mi,
@@ -165,7 +162,7 @@ BEGIN
   END IF;
   
   -- Mevcut yarıyılı hesapla
-  v_mevcut_yariyil := calculate_yariyil(v_kayit_tarihi, CURRENT_DATE);
+  v_mevcut_yariyil := public.calculate_yariyil(v_kayit_tarihi, CURRENT_DATE::DATE);
   
   -- Program türüne göre risk faktörlerini hesapla
   IF v_program_kodu = 'Doktora' THEN
@@ -310,7 +307,7 @@ CREATE OR REPLACE VIEW public.ogrenci_mevcut_durum_view AS
 SELECT 
   o.ogrenci_id,
   o.kayit_tarihi,
-  calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) as mevcut_yariyil,
+  public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) as mevcut_yariyil,
   oad.mevcut_asinama,
   oad.ders_tamamlandi_mi,
   oad.tamamlanan_ders_sayisi,
@@ -370,7 +367,7 @@ SELECT
   pt.program_adi,
   pt.program_kodu,
   dt.durum_adi,
-  calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) as mevcut_yariyil,
+  public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) as mevcut_yariyil,
   pt.maksimum_sure_yariyil,
   COALESCE(ora.risk_skoru, 0) as risk_skoru,
   ora.risk_seviyesi,
@@ -453,7 +450,7 @@ BEGIN
   FROM public.ogrenci
   WHERE ogrenci_id = p_ogrenci_id;
   
-  v_mevcut_yariyil := calculate_yariyil(v_kayit_tarihi, CURRENT_DATE);
+  v_mevcut_yariyil := public.calculate_yariyil(v_kayit_tarihi, CURRENT_DATE::DATE);
   
   -- ogrenci_akademik_durum tablosunu güncelle (eğer varsa)
   UPDATE public.ogrenci_akademik_durum
@@ -834,7 +831,7 @@ BEGIN
     o.kayit_tarihi,
     pt.program_adi,
     pt.program_kodu,
-    calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) as mevcut_yariyil,
+    public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) as mevcut_yariyil,
     osl.son_login,
     (CURRENT_DATE - COALESCE(osl.son_login::DATE, o.kayit_tarihi))::INT as login_olmayan_gun_sayisi,
     CASE
@@ -875,7 +872,7 @@ BEGIN
   SELECT 
     o.ogrenci_id,
     o.kayit_tarihi,
-    calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) as mevcut_yariyil,
+    public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) as mevcut_yariyil,
     pt.maksimum_sure_yariyil,
     COALESCE(ora.risk_skoru, 0) as risk_skoru,
     COALESCE(ora.risk_seviyesi, 'Dusuk') as risk_seviyesi,
@@ -883,8 +880,8 @@ BEGIN
     -- Aciliyet puanı: Risk skoru + süre aşımı yakınlığı
     (COALESCE(ora.risk_skoru, 0)::NUMERIC + 
      CASE 
-       WHEN calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) >= pt.maksimum_sure_yariyil - 2 THEN 20
-       WHEN calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) >= pt.maksimum_sure_yariyil - 4 THEN 10
+       WHEN public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) >= pt.maksimum_sure_yariyil - 2 THEN 20
+       WHEN public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) >= pt.maksimum_sure_yariyil - 4 THEN 10
        ELSE 0
      END)::NUMERIC as aciliyet_puani
   FROM public.ogrenci o
@@ -930,7 +927,7 @@ BEGIN
       o.kayit_tarihi,
       pt.program_adi,
       pt.program_kodu,
-      calculate_yariyil(o.kayit_tarihi, CURRENT_DATE) as mevcut_yariyil,
+      public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE) as mevcut_yariyil,
       pt.maksimum_sure_yariyil,
       COALESCE(ora.risk_skoru, hesapla_risk_skoru(o.ogrenci_id)) as risk_skoru,
       COALESCE(ora.risk_seviyesi, 
@@ -1042,18 +1039,15 @@ DECLARE
   v_h_notu_sayisi INT; -- H (Hak Dondurma) notu sayısı
   v_etkili_yariyil INT; -- H notları düşüldükten sonraki etkili yarıyıl
   v_kayit_tarihi DATE;
-  v_kabul_turu TEXT;
 BEGIN
   -- Öğrenci bilgilerini al
   SELECT 
     o.kayit_tarihi,
-    o.kabul_turu,
     pt.program_kodu,
     pt.maksimum_sure_yariyil,
-    calculate_yariyil(o.kayit_tarihi, CURRENT_DATE)
+    public.calculate_yariyil(o.kayit_tarihi, CURRENT_DATE::DATE)
   INTO 
     v_kayit_tarihi,
-    v_kabul_turu,
     v_program_kodu,
     v_maksimum_yariyil,
     v_mevcut_yariyil
@@ -1185,7 +1179,7 @@ DECLARE
   v_etkili_yariyil INT;
 BEGIN
   -- Mevcut yarıyılı hesapla
-  SELECT calculate_yariyil(kayit_tarihi, CURRENT_DATE) INTO v_mevcut_yariyil
+  SELECT public.calculate_yariyil(kayit_tarihi, CURRENT_DATE::DATE) INTO v_mevcut_yariyil
   FROM public.ogrenci
   WHERE ogrenci_id = p_ogrenci_id;
   
@@ -2131,7 +2125,7 @@ BEGIN
   END IF;
   
   -- Mevcut yarıyılı hesapla
-  v_mevcut_yariyil := calculate_yariyil(v_kayit_tarihi, CURRENT_DATE);
+  v_mevcut_yariyil := public.calculate_yariyil(v_kayit_tarihi, CURRENT_DATE::DATE);
   
   -- Akademik durumu güncelle
   INSERT INTO public.ogrenci_akademik_durum (

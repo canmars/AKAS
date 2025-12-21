@@ -18,6 +18,15 @@ export class AppController {
   }
 
   init() {
+    // Önce login kontrolü yap
+    const authToken = localStorage.getItem('auth_token');
+    if (!authToken) {
+      // Login sayfasını göster
+      this.setupRouting();
+      this.handleRoute();
+      return;
+    }
+
     // MainLayout oluştur
     this.mainLayout = new MainLayout(this.view.container);
     
@@ -43,8 +52,17 @@ export class AppController {
   handleRoute() {
     const hash = window.location.hash.slice(1) || '/dashboard';
     
+    // Login kontrolü
+    const authToken = localStorage.getItem('auth_token');
+    if (!authToken && hash !== '/login') {
+      this.showLogin();
+      return;
+    }
+
     // Route pattern matching
-    if (hash === '/dashboard') {
+    if (hash === '/login') {
+      this.showLogin();
+    } else if (hash === '/dashboard') {
       this.showDashboard();
     } else if (hash.startsWith('/ogrenci/')) {
       const ogrenciId = hash.split('/')[2];
@@ -62,6 +80,19 @@ export class AppController {
     } else {
       this.showDashboard();
     }
+  }
+
+  showLogin() {
+    // MainLayout'u gizle, sadece login sayfasını göster
+    if (this.mainLayout) {
+      this.mainLayout.destroy();
+      this.mainLayout = null;
+    }
+    
+    this.view.container.innerHTML = '';
+    import('../views/pages/LoginPage.js').then(({ LoginPage }) => {
+      new LoginPage(this.view.container);
+    });
   }
 
   showOgrenciDetay(ogrenciId) {

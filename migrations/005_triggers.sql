@@ -122,7 +122,7 @@ BEGIN
   WHERE pt.program_turu_id = NEW.program_turu_id;
   
   -- Mevcut yarıyılı hesapla (view'den alınacak, şimdilik calculate_yariyil kullan)
-  SELECT calculate_yariyil(NEW.kayit_tarihi, CURRENT_DATE)
+  SELECT public.calculate_yariyil(NEW.kayit_tarihi, CURRENT_DATE::DATE)
   INTO v_mevcut_yariyil;
   
   -- Maksimum süre kontrolü

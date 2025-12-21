@@ -323,4 +323,16 @@ export class DashboardController {
       next(error);
     }
   }
+
+  /**
+   * Attrition Data (Engagement için)
+   */
+  static async getAttritionData(req, res, next) {
+    try {
+      const data = await dashboardQueries.getAttritionData();
+      res.json({ success: true, data });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

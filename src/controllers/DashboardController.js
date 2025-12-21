@@ -46,28 +46,34 @@ export class DashboardController {
 
       this.page.showLoading();
 
-      // Paralel olarak tüm verileri yükle (sadece grafikler için gerekli olanlar)
+      // Paralel olarak tüm verileri yükle
       const [
         kpiResponse,
         surecHattiResponse,
         danismanYukResponse,
         riskDagilimiResponse,
-        programDagilimiResponse
+        programDagilimiResponse,
+        attritionResponse
       ] = await Promise.all([
         ApiService.getKPIMetrics(),
         ApiService.getSurecHatti(),
         ApiService.getDanismanYuk(),
         ApiService.getRiskDagilimi(),
-        ApiService.getProgramDagilimi()
+        ApiService.getProgramDagilimi(),
+        ApiService.getAttritionData().catch(() => ({ success: false, data: [] })) // Opsiyonel
       ]);
 
-      // Verileri sayfaya aktar (veri yoksa bile render et)
+      // Engagement verisini hazırla (Attrition verisinden)
+      const engagementData = this.prepareEngagementData(attritionResponse?.data || []);
+
+      // Verileri sayfaya aktar
       this.page.render({
         kpi: kpiResponse?.data || {},
         surecHattiData: surecHattiResponse?.data || [],
         danismanYuk: danismanYukResponse?.data || [],
         riskDagilimi: riskDagilimiResponse?.data || {},
-        programDagilimi: programDagilimiResponse?.data || []
+        programDagilimi: programDagilimiResponse?.data || [],
+        engagementData: engagementData
       });
 
       this.page.hideLoading();
@@ -77,6 +83,22 @@ export class DashboardController {
         this.page.showError(`Veriler yüklenirken bir hata oluştu: ${error.message}`);
       }
     }
+  }
+
+  prepareEngagementData(attritionData) {
+    // Attrition verisini Engagement Scatter formatına dönüştür
+    if (!attritionData || !Array.isArray(attritionData)) {
+      return [];
+    }
+
+    return attritionData.map(item => ({
+      ogrenci_id: item.ogrenci_id,
+      ad: item.ad,
+      soyad: item.soyad,
+      gun_sayisi: item.gun_sayisi || item.login_olmayan_gun_sayisi || 0,
+      risk_skoru: item.risk_skoru || 0,
+      program_adi: item.program_adi || 'N/A'
+    }));
   }
 
   destroy() {

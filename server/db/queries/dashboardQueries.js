@@ -283,12 +283,33 @@ export const dashboardQueries = {
    * Son giriş gün sayısı ve risk skoru verileri
    */
   async getAttritionData() {
+    // Öğrenci verilerini al (program bilgisi olmadan)
     const { data: ogrenciData, error: ogrenciError } = await supabaseAdmin
       .from('ogrenci')
-      .select('ogrenci_id, ad, soyad, son_login')
+      .select('ogrenci_id, ad, soyad, son_login, program_turu_id')
       .eq('soft_delete', false);
 
     if (ogrenciError) throw ogrenciError;
+
+    // Program bilgilerini ayrı sorgu ile al
+    const programIds = [...new Set(ogrenciData.map(o => o.program_turu_id).filter(Boolean))];
+    const programMap = {};
+    
+    if (programIds.length > 0) {
+      const { data: programData, error: programError } = await supabaseAdmin
+        .from('program_turleri')
+        .select('program_turu_id, program_adi, program_kodu')
+        .in('program_turu_id', programIds);
+
+      if (programError) throw programError;
+
+      programData.forEach(p => {
+        programMap[p.program_turu_id] = {
+          program_adi: p.program_adi,
+          program_kodu: p.program_kodu
+        };
+      });
+    }
 
     // Risk skorlarını al
     const { data: riskData, error: riskError } = await supabaseAdmin
@@ -317,12 +338,16 @@ export const dashboardQueries = {
         gun_sayisi = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       }
 
+      const programInfo = ogrenci.program_turu_id ? programMap[ogrenci.program_turu_id] : null;
+
       return {
         ogrenci_id: ogrenci.ogrenci_id,
         ad: ogrenci.ad,
         soyad: ogrenci.soyad,
         gun_sayisi,
-        risk_skoru: riskMap[ogrenci.ogrenci_id] || 0
+        risk_skoru: riskMap[ogrenci.ogrenci_id] || 0,
+        program_adi: programInfo?.program_adi || 'N/A',
+        program_kodu: programInfo?.program_kodu || null
       };
     });
 

@@ -9,9 +9,74 @@ export class MainLayout {
     this.container = container;
     this.currentRoute = null;
     this.sidebarOpen = false;
+    this.userRole = null;
     this.render();
+    this.loadUserRole();
     this.setupNavigation();
     this.setupMobileMenu();
+  }
+
+  async loadUserRole() {
+    // Kullanıcı rolünü localStorage'dan veya API'den al
+    try {
+      const storedRole = localStorage.getItem('user_role');
+      if (storedRole) {
+        this.userRole = storedRole;
+      } else {
+        // API'den rol al (opsiyonel) - şimdilik varsayılan
+        this.userRole = 'Bolum_Baskani'; // Varsayılan
+        localStorage.setItem('user_role', this.userRole);
+      }
+      this.updateNavigation();
+    } catch (error) {
+      console.error('Kullanıcı rolü yüklenemedi:', error);
+      this.userRole = 'Bolum_Baskani'; // Varsayılan
+      this.updateNavigation();
+    }
+  }
+
+  updateNavigation() {
+    const navContainer = document.getElementById('main-navigation');
+    if (!navContainer) return;
+
+    let menuItems = [];
+
+    // Bölüm Başkanı ve Admin menüleri
+    if (this.userRole === 'Bolum_Baskani' || this.userRole === 'Admin') {
+      menuItems.push(
+        { route: '/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+        { route: '/admin/veri-yukleme', label: 'Veri Yükleme', icon: 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12', roles: ['Admin', 'Bolum_Baskani'] },
+        { route: '/what-if', label: 'What-If Analizi', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+        { route: '/risk-analizi', label: 'Risk Analizi', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' }
+      );
+    }
+
+    // Danışman menüleri
+    if (this.userRole === 'Danisman' || this.userRole === 'Bolum_Baskani' || this.userRole === 'Admin') {
+      menuItems.push(
+        { route: '/danisman/dashboard', label: 'Danışman Paneli', icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' }
+      );
+    }
+
+    // Öğrenci menüleri
+    if (this.userRole === 'Ogrenci') {
+      menuItems.push(
+        { route: '/ogrenci/dashboard', label: 'Öğrenci Paneli', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
+      );
+    }
+
+    // Menü öğelerini render et
+    navContainer.innerHTML = menuItems.map(item => `
+      <a href="#${item.route}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="${item.route}">
+        <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}" />
+        </svg>
+        <span class="font-medium">${item.label}</span>
+      </a>
+    `).join('');
+
+    // Menü event listener'larını yeniden bağla
+    this.setupNavigation();
   }
 
   render() {
@@ -37,47 +102,29 @@ export class MainLayout {
           </div>
           
           <!-- Navigation -->
-          <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <a href="#/dashboard" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="/dashboard">
-              <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span class="font-medium">Dashboard</span>
-            </a>
-            <a href="#/ogrenciler" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="/ogrenciler">
-              <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <span class="font-medium">Öğrenciler</span>
-            </a>
-            <a href="#/danismanlar" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="/danismanlar">
-              <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span class="font-medium">Danışmanlar</span>
-            </a>
-            <a href="#/bildirimler" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-blue-50 hover:text-slate-900 transition-all duration-200 group" data-route="/bildirimler">
-              <svg class="w-5 h-5 text-slate-500 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <span class="font-medium">Bildirimler</span>
-            </a>
+          <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto" id="main-navigation">
+            <!-- Rol bazlı menü buraya dinamik olarak eklenecek -->
+            <div class="text-center py-8 text-slate-500">Yükleniyor...</div>
           </nav>
           
           <!-- Sidebar Profile -->
           <div class="p-6 border-t border-slate-200 bg-slate-50">
             <div class="flex items-center gap-3">
               <!-- Avatar Circle -->
-              <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                VT
+              <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0" id="user-avatar">
+                U
               </div>
               <!-- User Info -->
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900 whitespace-normal break-words leading-snug">Prof. Dr. Vahap Tecim</p>
-                <p class="text-xs text-slate-600 whitespace-normal break-words leading-snug">Bölüm Başkanı</p>
+              <div class="flex-1 min-w-0" id="user-info">
+                <p class="text-sm font-semibold text-slate-900 whitespace-normal break-words leading-snug">Kullanıcı</p>
+                <p class="text-xs text-slate-600 whitespace-normal break-words leading-snug" id="user-role">Yükleniyor...</p>
               </div>
               <!-- Logout Icon -->
-              <button class="text-slate-500 hover:text-slate-900 transition-colors flex-shrink-0" title="Çıkış Yap">
+              <button 
+                id="logout-button"
+                class="text-slate-500 hover:text-slate-900 transition-colors flex-shrink-0" 
+                title="Çıkış Yap"
+              >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -138,6 +185,7 @@ export class MainLayout {
     const mobileCloseBtn = document.getElementById('mobile-close-btn');
     const mobileOverlay = document.getElementById('mobile-overlay');
     const sidebar = document.getElementById('sidebar');
+    const logoutButton = document.getElementById('logout-button');
 
     if (mobileMenuBtn) {
       mobileMenuBtn.addEventListener('click', () => {
@@ -157,12 +205,61 @@ export class MainLayout {
       });
     }
 
+    if (logoutButton) {
+      logoutButton.addEventListener('click', () => {
+        this.handleLogout();
+      });
+    }
+
+    // Kullanıcı bilgilerini güncelle
+    this.updateUserInfo();
+
     // Ekran boyutu değiştiğinde sidebar'ı kontrol et
     window.addEventListener('resize', () => {
       if (window.innerWidth >= 1024) {
         this.closeSidebar();
       }
     });
+  }
+
+  updateUserInfo() {
+    const userRole = localStorage.getItem('user_role') || 'Kullanıcı';
+    const userEmail = localStorage.getItem('user_email') || 'kullanici@deu.edu.tr';
+    
+    const roleLabels = {
+      'Bolum_Baskani': 'Bölüm Başkanı',
+      'Admin': 'Admin',
+      'Danisman': 'Danışman',
+      'Ogrenci': 'Öğrenci'
+    };
+
+    const userInfoDiv = document.getElementById('user-info');
+    const userRoleDiv = document.getElementById('user-role');
+    const userAvatar = document.getElementById('user-avatar');
+
+    if (userInfoDiv) {
+      userInfoDiv.querySelector('p').textContent = userEmail.split('@')[0];
+    }
+
+    if (userRoleDiv) {
+      userRoleDiv.textContent = roleLabels[userRole] || userRole;
+    }
+
+    if (userAvatar) {
+      const initials = userEmail.split('@')[0].substring(0, 2).toUpperCase();
+      userAvatar.textContent = initials;
+    }
+  }
+
+  handleLogout() {
+    // LocalStorage'ı temizle
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('user_email');
+
+    // Login sayfasına yönlendir
+    window.location.hash = '/login';
+    window.location.reload();
   }
 
   openSidebar() {
