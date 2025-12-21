@@ -107,7 +107,39 @@ BEGIN
 END $$;
 
 -- ============================================
--- 4. TÜM İNDEKSLERİ SİL (Primary Key ve Foreign Key constraint'leri hariç)
+-- 4. TÜM CONSTRAINT'LERİ SİL (Primary Key ve Foreign Key hariç)
+-- ============================================
+
+-- Önce unique constraint'leri ve check constraint'leri sil
+-- (Primary key ve foreign key constraint'leri korunacak)
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN 
+        SELECT 
+            n.nspname as schema_name,
+            t.relname as table_name,
+            c.conname as constraint_name,
+            c.contype as constraint_type
+        FROM pg_constraint c
+        JOIN pg_class t ON c.conrelid = t.oid
+        JOIN pg_namespace n ON t.relnamespace = n.oid
+        WHERE n.nspname = 'public'
+        AND c.contype IN ('u', 'c') -- 'u' = unique, 'c' = check
+    LOOP
+        BEGIN
+            EXECUTE format('ALTER TABLE %I.%I DROP CONSTRAINT IF EXISTS %I CASCADE', 
+                r.schema_name, r.table_name, r.constraint_name);
+        EXCEPTION WHEN OTHERS THEN
+            -- Hata olsa bile devam et
+            NULL;
+        END;
+    END LOOP;
+END $$;
+
+-- ============================================
+-- 5. TÜM İNDEKSLERİ SİL (Primary Key ve Foreign Key constraint'leri hariç)
 -- ============================================
 
 -- Tüm indeksleri dinamik olarak sil (PK ve FK constraint'leri hariç)
@@ -122,12 +154,17 @@ BEGIN
         AND indexname NOT LIKE '%_pkey'
         AND indexname NOT LIKE '%_fkey'
     LOOP
-        EXECUTE format('DROP INDEX IF EXISTS public.%I CASCADE', r.indexname);
+        BEGIN
+            EXECUTE format('DROP INDEX IF EXISTS public.%I CASCADE', r.indexname);
+        EXCEPTION WHEN OTHERS THEN
+            -- Constraint'e bağlı index'ler için hata olabilir, devam et
+            NULL;
+        END;
     END LOOP;
 END $$;
 
 -- ============================================
--- 5. TÜM RLS (Row Level Security) POLICY'LERİNİ SİL
+-- 6. TÜM RLS (Row Level Security) POLICY'LERİNİ SİL
 -- ============================================
 
 -- Tüm RLS policy'lerini dinamik olarak sil
@@ -169,7 +206,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- 6. TÜM SEQUENCE'LERİ SİL (Tablolarla ilişkili olmayanlar)
+-- 7. TÜM SEQUENCE'LERİ SİL (Tablolarla ilişkili olmayanlar)
 -- ============================================
 
 -- Tablolarla ilişkili olmayan sequence'leri sil
