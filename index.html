@@ -2,45 +2,14 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DEÜ YBS Lisansüstü Karar Destek Sistemi</title>
-    
-    <!-- Google Fonts Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>YİSANS KDS</title>
     
     <!-- Global Styles -->
     <link rel="stylesheet" href="/src/styles/global.css">
-    
-    <!-- Tailwind CSS is now installed via npm and processed through PostCSS -->
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
-    
-    <!-- Chart.js Plugins - Chart.js yüklendikten sonra yüklenecek -->
-    <script type="module">
-      // Chart.js'in yüklenmesini bekle (npm'den import edildiği için)
-      async function loadChartPlugins() {
-        // Chart.js'in yüklenmesini bekle
-        while (typeof window.Chart === 'undefined') {
-          await new Promise(resolve => setTimeout(resolve, 50));
-        }
-        
-        // Chart.js yüklendi, plugin'leri yükle
-        const annotationScript = document.createElement('script');
-        annotationScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js';
-        annotationScript.onload = () => {
-          const datalabelsScript = document.createElement('script');
-          datalabelsScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js';
-          document.body.appendChild(datalabelsScript);
-        };
-        document.body.appendChild(annotationScript);
-      }
-      
-      loadChartPlugins();
-    </script>
   </body>
 </html>

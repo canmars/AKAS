@@ -1,6 +1,6 @@
 /**
  * App View
- * Ana görünüm
+ * Minimal görünüm
  */
 
 export class AppView {
@@ -9,16 +9,5 @@ export class AppView {
     if (!this.container) {
       throw new Error(`Container ${containerId} not found`);
     }
-  }
-
-  showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    this.container.appendChild(errorDiv);
-  }
-
-  clear() {
-    this.container.innerHTML = '';
   }
 }
