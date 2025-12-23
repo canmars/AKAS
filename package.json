@@ -1,34 +1,11 @@
 {
-  "name": "yisans-kds",
-  "version": "1.0.0",
+  "name": "akas-root",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "node server/server.js",
-    "dev:client": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "seed": "python scripts/seed.py"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "chart.js": "^4.4.0",
-    "chartjs-adapter-date-fns": "^3.0.0",
-    "cors": "^2.8.5",
-    "date-fns": "^2.30.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "multer": "^1.4.5-lts.1",
-    "node-cron": "^3.0.3",
-    "xlsx": "^0.18.5"
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "nodemon": "^3.0.2",
-    "vite": "^7.2.4",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.35",
-    "autoprefixer": "^10.4.17"
+    "concurrently": "^8.2.2"
   }
 }

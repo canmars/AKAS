@@ -29,7 +29,6 @@ lisansustu_docs/
 scripts/
 scripts
 scripts/**
-docs/
 
 # 3.3. Python Cache ve Geçici Dosyalar
 __pycache__/
