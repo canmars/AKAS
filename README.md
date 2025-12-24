@@ -110,3 +110,4 @@ Detaylı proje özeti, veritabanı şeması ve mimari kararlar için [PROJE_OZET
 
 ---
 *© 2025 AKAS Project.*
+

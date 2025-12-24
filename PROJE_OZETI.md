@@ -19,6 +19,80 @@ Sistem, Bölüm Başkanı'nın aşağıdaki 6 temel alanda karar vermesini kolay
 5.  **Performans Analizi**: Öğrenci ve danışman bazlı başarı metriklerinin takibi ve mezuniyet tahminleri.
 6.  **Eğitim Kalitesi ve Ders Analizi**: Başarısızlık oranlarının yüksek olduğu derslerin tespiti ve not yığılmalarının analizi.
 
+
+### 4. 📊 Sistem Analizi
+
+#### 4.1 Durum Tanımı
+
+
+##### 4.1.1 Tespit (Belirti Analizi, Ne?):
+- Ne yanlış gidiyor?
+
+
+##### 4.1.2 Teşhis (Neden Analizi, Kök Neden):
+- Bu belirti neden ortaya çıkıyor?
+
+
+
+##### 4.1.3 Problem Tanımlama Teknikleri 
+- Doğru bir teşhis koyabilmek için analitik araçlar.
+
+- Teknik 1: Beyin Fırtınası (Brainstorming)
+- Teknik 2: Pareto Analizi (80/20 Kuralı)
+
+
+##### 4.2 Sistemin Tanımı (Mevcut Sistemin Sınırları)
+
+
+
+##### 4.3 Sistem Çevresinin Tanımı (Mevcut Sistemin Dış Unsurları)
+##### 4.4 Sistemin Hedefleri (Yeni Sistemin Hedefleri)
+##### 4.5 Bilgi ve Veri Analizi
+
+
+
+### 5. Sistem Tasarımı (Yeni Sistem Nasıl Çalışacak?)
+
+##### 5.1 Öngörü ve Kestirim
+##### 5.2 Davranış Modellemesi
+##### 5.3 Optimizasyon
+##### 5.4 Güvenilirlik ve Geliştirme Sistemlerinin Kurulması
+
+### 6. Sistem Hazırlama (Sistemi Hayata Geçirmek)
+
+##### 6.1 Belgeleme (Dokümantasyon)
+##### 6.2 Kurulum (Programlama ve Test)
+##### 6.3 Personel Eğitimi
+
+### 7. Sistem İşletimi (Sistemi Yaşatmak ve Geliştirmek)
+
+##### 7.1 Başlangıç (Pilot Deneme)
+##### 7.2 Değerlendirme (Feedback/Geri Bildirim)
+##### 7.3 İyileştirilmiş İşletim
+##### 7.4 Sistemi devreye alma
+
+
+
+
+
+#### 4.1. 📊 Programlar
+
+Dokuz Eylül Üniversitesi Yönetim Bilişim Sistemleri (YBS) Bölümü bünyesindeki lisansüstü programlar
+
+
+Bölümümüzde 4 temel lisansüstü program yürütülmektedir:
+
+| Program Kodu | Program Adı | Tür | Eğitim Dili | Öğretim Şekli |
+|--------------|-------------|-----|-------------|---------------|
+| **DEU_YBS_DOKTORA** | DEÜ YBS Doktora Programı | Doktora | Türkçe | Normal |
+| **DEU_YBS_TEZLI_YL** | DEÜ YBS Tezli Yüksek Lisans | Tezli Yüksek Lisans | Türkçe | Normal |
+| **DEU_YBS_TEZSIZ_IO** | DEÜ YBS Tezsiz Yüksek Lisans (İÖ) | Tezsiz Yüksek Lisans (İÖ) | Türkçe | İkinci Öğretim |
+| **DEU_YBS_TEZSIZ_UZ** | DEÜ YBS Tezsiz Yüksek Lisans (Uzaktan) | Tezsiz Yüksek Lisans (Uzaktan) | Türkçe | Uzaktan |
+
+
+
+
+
 ---
 
 ### 4. 🏗️ Proje Mimarisi ve Klasör Yapısı (MVC)
@@ -33,10 +107,10 @@ Proje, **Model-View-Controller (MVC)** tasarım desenine sadık kalınarak yapı
 #### **Teknoloji Yığını (Tech Stack)**
 *   **Frontend**: React.js, Vite, Tailwind CSS, Chart.js
 *   **Backend**: Node.js, Express.js
-*   **Veritabanı**: PostgreSQL (Supabase)
+*   **Veritabanı**: PostgreSQL (Supabase). Extensions: pg_cron, pg_trgm, vector
 
 #### **Detaylı Klasör Yapısı**
-Aşağıda, projenin hedeflediği **tam klasör yapısı** yer almaktadır. Bazı klasörler henüz boş olabilir ancak yapısal bütünlük için oluşturulmuştur.
+Aşağıda, projenin hedeflediği **tam klasör yapısı** yer almaktadır. Henüz boş olabilir yahut isimlerin ve dosyaların içeriği değişim gösterebilir ancak bu mimari yapısı bütünlük oluşturup proje anlaşılmasını kolaylaştırılması için oluşturulmuştur.
 
 ```
 AKAS/
@@ -97,7 +171,10 @@ AKAS/
 
 ---
 
-### 5. 🗄️ Güncel Veritabanı Şeması
+### 5. 🗄️ Veritabanı
+
+
+#### 5.1. 🗄️ Veritabanı Şeması
 
 Aşağıda projenin güncel veritabanı şeması (Entity-Relationship yapısı) yer almaktadır.
 
@@ -105,6 +182,20 @@ Aşağıda projenin güncel veritabanı şeması (Entity-Relationship yapısı) 
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.acilan_dersler (
+  acilan_ders_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  ders_id uuid NOT NULL,
+  akademik_donem_id uuid,
+  ogretim_uyesi_id uuid,
+  kontenjan integer DEFAULT 50,
+  derslik_bilgisi text,
+  ders_programi_saati text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT acilan_dersler_pkey PRIMARY KEY (acilan_ders_id),
+  CONSTRAINT acilan_dersler_ders_id_fkey FOREIGN KEY (ders_id) REFERENCES public.dersler(ders_id),
+  CONSTRAINT acilan_dersler_akademik_donem_id_fkey FOREIGN KEY (akademik_donem_id) REFERENCES public.akademik_takvim(takvim_id),
+  CONSTRAINT acilan_dersler_ogretim_uyesi_id_fkey FOREIGN KEY (ogretim_uyesi_id) REFERENCES public.akademik_personel(personel_id)
+);
 CREATE TABLE public.adminler (
   admin_id uuid NOT NULL DEFAULT gen_random_uuid(),
   email text NOT NULL UNIQUE,
@@ -114,7 +205,29 @@ CREATE TABLE public.adminler (
   aktif_mi boolean DEFAULT true,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT adminler_pkey PRIMARY KEY (admin_id)
+  user_id uuid,
+  avatar_url text,
+  deleted_at timestamp with time zone,
+  CONSTRAINT adminler_pkey PRIMARY KEY (admin_id),
+  CONSTRAINT adminler_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.akademik_gorevler (
+  gorev_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  atanan_ogrenci_id uuid NOT NULL,
+  atayan_personel_id uuid,
+  tez_id uuid,
+  baslik text NOT NULL,
+  aciklama text,
+  son_tarih timestamp with time zone,
+  durum text DEFAULT 'Bekliyor'::text CHECK (durum = ANY (ARRAY['Bekliyor'::text, 'Yapiliyor'::text, 'Tamamlandi'::text, 'Gecikti'::text, 'Iptal'::text])),
+  oncelik text DEFAULT 'Orta'::text CHECK (oncelik = ANY (ARRAY['Dusuk'::text, 'Orta'::text, 'Yuksek'::text])),
+  tamamlanma_tarihi timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT akademik_gorevler_pkey PRIMARY KEY (gorev_id),
+  CONSTRAINT akademik_gorevler_atanan_ogrenci_id_fkey FOREIGN KEY (atanan_ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT akademik_gorevler_atayan_personel_id_fkey FOREIGN KEY (atayan_personel_id) REFERENCES public.akademik_personel(personel_id),
+  CONSTRAINT akademik_gorevler_tez_id_fkey FOREIGN KEY (tez_id) REFERENCES public.tezler(tez_id)
 );
 CREATE TABLE public.akademik_personel (
   personel_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -132,8 +245,16 @@ CREATE TABLE public.akademik_personel (
   updated_at timestamp with time zone DEFAULT now(),
   rol text CHECK (rol = ANY (ARRAY['Danisman'::text, 'Bolum_Baskani'::text])),
   anabilim_dali_baskani_mi boolean DEFAULT false,
+  user_id uuid,
+  dahili_no text,
+  avatar_url text,
+  mevcut_danismanlik_sayisi integer DEFAULT 0,
+  aktif_danisman_mi boolean DEFAULT true,
+  bolum_baskani_mi boolean DEFAULT false,
+  deleted_at timestamp with time zone,
   CONSTRAINT akademik_personel_pkey PRIMARY KEY (personel_id),
-  CONSTRAINT fk_akademik_personel_anabilim_dali FOREIGN KEY (anabilim_dali_id) REFERENCES public.anabilim_dallari(anabilim_dali_id)
+  CONSTRAINT fk_akademik_personel_anabilim_dali FOREIGN KEY (anabilim_dali_id) REFERENCES public.anabilim_dallari(anabilim_dali_id),
+  CONSTRAINT akademik_personel_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.akademik_personel_uzmanlik (
   personel_uzmanlik_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -185,6 +306,18 @@ CREATE TABLE public.asama_tanimlari (
   CONSTRAINT asama_tanimlari_pkey PRIMARY KEY (asama_tanimi_id),
   CONSTRAINT asama_tanimlari_program_turu_id_fkey FOREIGN KEY (program_turu_id) REFERENCES public.program_turleri(program_turu_id)
 );
+CREATE TABLE public.bildirimler (
+  bildirim_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  baslik text NOT NULL,
+  mesaj text NOT NULL,
+  tip text CHECK (tip = ANY (ARRAY['Bilgi'::text, 'Uyari'::text, 'Tehlike'::text, 'Gorev'::text])),
+  okundu_mu boolean DEFAULT false,
+  link text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT bildirimler_pkey PRIMARY KEY (bildirim_id),
+  CONSTRAINT bildirimler_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.danisman_gecmisi (
   gecmis_id uuid NOT NULL DEFAULT gen_random_uuid(),
   ogrenci_id uuid NOT NULL,
@@ -200,7 +333,7 @@ CREATE TABLE public.danisman_gecmisi (
   CONSTRAINT danisman_gecmisi_danisman_id_fkey FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id)
 );
 CREATE TABLE public.dersler (
-  ders_kodu text NOT NULL,
+  ders_kodu text NOT NULL UNIQUE,
   ders_adi text NOT NULL,
   ders_turu text NOT NULL,
   akts integer NOT NULL DEFAULT 0,
@@ -209,7 +342,8 @@ CREATE TABLE public.dersler (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   program_turu_id uuid,
-  CONSTRAINT dersler_pkey PRIMARY KEY (ders_kodu),
+  ders_id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+  CONSTRAINT dersler_pkey PRIMARY KEY (ders_id),
   CONSTRAINT dersler_program_turu_id_fkey FOREIGN KEY (program_turu_id) REFERENCES public.program_turleri(program_turu_id)
 );
 CREATE TABLE public.durum_turleri (
@@ -242,11 +376,16 @@ CREATE TABLE public.ogrenci (
   updated_at timestamp with time zone DEFAULT now(),
   program_kabul_turu uuid,
   kabul_turu text CHECK (kabul_turu = ANY (ARRAY['Lisans'::text, 'Yuksek_Lisans'::text])),
+  user_id uuid,
+  kurumsal_email text,
+  avatar_url text,
+  mezuniyet_tarihi date,
   CONSTRAINT ogrenci_pkey PRIMARY KEY (ogrenci_id),
   CONSTRAINT ogrenci_danisman_id_fkey FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id),
   CONSTRAINT fk_ogrenci_program_turu FOREIGN KEY (program_turu_id) REFERENCES public.program_turleri(program_turu_id),
   CONSTRAINT fk_ogrenci_durum FOREIGN KEY (durum_id) REFERENCES public.durum_turleri(durum_id),
   CONSTRAINT fk_ogrenci_danisman FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id),
+  CONSTRAINT ogrenci_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
   CONSTRAINT fk_ogrenci_program_kabul_turu FOREIGN KEY (program_kabul_turu) REFERENCES public.program_turleri(program_turu_id)
 );
 CREATE TABLE public.ogrenci_akademik_durum (
@@ -294,9 +433,10 @@ CREATE TABLE public.ogrenci_dersleri (
   butunleme_notu numeric,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  acilan_ders_id uuid,
   CONSTRAINT ogrenci_dersleri_pkey PRIMARY KEY (ders_kayit_id),
   CONSTRAINT ogrenci_dersleri_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
-  CONSTRAINT fk_ogrenci_dersleri_dersler FOREIGN KEY (ders_kodu) REFERENCES public.dersler(ders_kodu)
+  CONSTRAINT ogrenci_dersleri_acilan_ders_id_fkey FOREIGN KEY (acilan_ders_id) REFERENCES public.acilan_dersler(acilan_ders_id)
 );
 CREATE TABLE public.ogrenci_durum_gecmisi (
   gecmis_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -318,7 +458,7 @@ CREATE TABLE public.ogrenci_durum_gecmisi (
 );
 CREATE TABLE public.ogrenci_risk_skorlari (
   risk_id uuid NOT NULL DEFAULT gen_random_uuid(),
-  ogrenci_id uuid NOT NULL UNIQUE,
+  ogrenci_id uuid NOT NULL,
   risk_skoru integer NOT NULL CHECK (risk_skoru >= 0 AND risk_skoru <= 100),
   risk_seviyesi text NOT NULL CHECK (risk_seviyesi = ANY (ARRAY['Dusuk'::text, 'Orta'::text, 'Yuksek'::text, 'Kritik'::text])),
   risk_faktorleri jsonb,
@@ -327,6 +467,7 @@ CREATE TABLE public.ogrenci_risk_skorlari (
   hesaplama_tarihi timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  oneri_aksiyon text,
   CONSTRAINT ogrenci_risk_skorlari_pkey PRIMARY KEY (risk_id),
   CONSTRAINT ogrenci_risk_skorlari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id)
 );
@@ -341,6 +482,41 @@ CREATE TABLE public.program_turleri (
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT program_turleri_pkey PRIMARY KEY (program_turu_id)
 );
+CREATE TABLE public.risk_tarihcesi (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  ogrenci_id uuid NOT NULL,
+  donem_id uuid,
+  risk_skoru integer NOT NULL,
+  risk_seviyesi text,
+  ana_faktorler jsonb,
+  hesaplama_tarihi timestamp with time zone DEFAULT now(),
+  CONSTRAINT risk_tarihcesi_pkey PRIMARY KEY (id),
+  CONSTRAINT risk_tarihcesi_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT risk_tarihcesi_donem_id_fkey FOREIGN KEY (donem_id) REFERENCES public.akademik_takvim(takvim_id)
+);
+CREATE TABLE public.sistem_ayarlari (
+  ayar_kodu text NOT NULL,
+  ayar_degeri text NOT NULL,
+  aciklama text,
+  guncelleyen_user_id uuid,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT sistem_ayarlari_pkey PRIMARY KEY (ayar_kodu),
+  CONSTRAINT sistem_ayarlari_guncelleyen_user_id_fkey FOREIGN KEY (guncelleyen_user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.sistem_loglari (
+  log_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  islem_yapan_user_id uuid,
+  islem_turu text NOT NULL CHECK (islem_turu = ANY (ARRAY['INSERT'::text, 'UPDATE'::text, 'DELETE'::text, 'LOGIN'::text, 'ERROR'::text])),
+  tablo_adi text NOT NULL,
+  kayit_id uuid,
+  eski_veri jsonb,
+  yeni_veri jsonb,
+  ip_adresi text,
+  aciklama text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT sistem_loglari_pkey PRIMARY KEY (log_id),
+  CONSTRAINT sistem_loglari_islem_yapan_user_id_fkey FOREIGN KEY (islem_yapan_user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.tez_donem_kayitlari (
   kayit_id uuid NOT NULL DEFAULT gen_random_uuid(),
   ogrenci_id uuid NOT NULL,
@@ -351,8 +527,23 @@ CREATE TABLE public.tez_donem_kayitlari (
   aciklama text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  tez_id uuid,
   CONSTRAINT tez_donem_kayitlari_pkey PRIMARY KEY (kayit_id),
-  CONSTRAINT tez_donem_kayitlari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id)
+  CONSTRAINT tez_donem_kayitlari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT tez_donem_kayitlari_tez_id_fkey FOREIGN KEY (tez_id) REFERENCES public.tezler(tez_id)
+);
+CREATE TABLE public.tez_juri_uyelikleri (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  savunma_id uuid NOT NULL,
+  personel_id uuid,
+  dis_juri_ad_soyad text,
+  kurum_bilgisi text,
+  rol text CHECK (rol = ANY (ARRAY['Baskan'::text, 'Asil_Uye'::text, 'Yedek_Uye'::text])),
+  katildi_mi boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tez_juri_uyelikleri_pkey PRIMARY KEY (id),
+  CONSTRAINT tez_juri_uyelikleri_savunma_id_fkey FOREIGN KEY (savunma_id) REFERENCES public.tez_savunmalari(savunma_id),
+  CONSTRAINT tez_juri_uyelikleri_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.akademik_personel(personel_id)
 );
 CREATE TABLE public.tez_onerileri (
   oneri_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -365,8 +556,11 @@ CREATE TABLE public.tez_onerileri (
   aciklama text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  tez_id uuid,
+  dosya_url text,
   CONSTRAINT tez_onerileri_pkey PRIMARY KEY (oneri_id),
-  CONSTRAINT tez_onerileri_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id)
+  CONSTRAINT tez_onerileri_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT tez_onerileri_tez_id_fkey FOREIGN KEY (tez_id) REFERENCES public.tezler(tez_id)
 );
 CREATE TABLE public.tez_savunmalari (
   savunma_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -379,8 +573,30 @@ CREATE TABLE public.tez_savunmalari (
   aciklama text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  tez_id uuid,
+  tutanak_dosya_url text,
   CONSTRAINT tez_savunmalari_pkey PRIMARY KEY (savunma_id),
-  CONSTRAINT tez_savunmalari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id)
+  CONSTRAINT tez_savunmalari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT tez_savunmalari_tez_id_fkey FOREIGN KEY (tez_id) REFERENCES public.tezler(tez_id)
+);
+CREATE TABLE public.tezler (
+  tez_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  ogrenci_id uuid NOT NULL,
+  danisman_id uuid,
+  baslik text,
+  konu_ozeti text,
+  tez_dili text DEFAULT 'Turkce'::text,
+  durum text CHECK (durum = ANY (ARRAY['Oneri'::text, 'Yazim'::text, 'Juri'::text, 'Tamamlandi'::text, 'Basarisiz'::text, 'Iptal'::text])),
+  baslangic_tarihi date DEFAULT CURRENT_DATE,
+  bitis_tarihi date,
+  tez_dosya_url text,
+  intihal_raporu_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  deleted_at timestamp with time zone,
+  CONSTRAINT tezler_pkey PRIMARY KEY (tez_id),
+  CONSTRAINT tezler_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id),
+  CONSTRAINT tezler_danisman_id_fkey FOREIGN KEY (danisman_id) REFERENCES public.akademik_personel(personel_id)
 );
 CREATE TABLE public.tik_toplantilari (
   toplanti_id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -411,5 +627,17 @@ CREATE TABLE public.yeterlik_sinavlari (
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT yeterlik_sinavlari_pkey PRIMARY KEY (sinav_id),
   CONSTRAINT yeterlik_sinavlari_ogrenci_id_fkey FOREIGN KEY (ogrenci_id) REFERENCES public.ogrenci(ogrenci_id)
-);
+); 
 ```
+
+## 5.2. 🗄️ Veritabanı İndeksleri
+
+```sql
+CREATE INDEX idx_adminler_aktif ON public.adminler USING btree (aktif_mi);
+CREATE INDEX idx_logs_created_at ON public.sistem_loglari USING btree (created_at DESC);
+CREATE INDEX idx_ogrenci_user_id ON public.ogrenci USING btree (user_id);
+CREATE INDEX idx_personel_user_id ON public.akademik_personel USING btree (user_id);
+CREATE INDEX idx_risk_hist_ogrenci ON public.risk_tarihcesi USING btree (ogrenci_id);
+```
+
+## 5.3. 🗄️ Veritabanı
