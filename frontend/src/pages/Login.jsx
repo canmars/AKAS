@@ -24,17 +24,17 @@ const Login = () => {
                 <img
                     src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop"
                     alt="Campus"
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
+                    className="absolute inset-0 w-full h-full object-cover opacity-40" // Reduced opacity, removed blend mode for better text contrast
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/30"></div> {/* Stronger gradient */}
 
                 <div className="relative z-10 w-full p-20 flex flex-col justify-end text-white">
                     <div className="mb-8">
                         <div className="flex items-center gap-4 mb-6">
-                            <span className="text-6xl">🎓</span>
-                            <h1 className="text-6xl font-black tracking-tighter">AKAS</h1>
+                            <span className="text-6xl drop-shadow-md">🎓</span>
+                            <h1 className="text-6xl font-black tracking-tighter drop-shadow-md text-white">AKAS</h1>
                         </div>
-                        <p className="text-2xl font-light text-slate-300 leading-relaxed max-w-lg">
+                        <p className="text-2xl font-bold text-white leading-relaxed max-w-lg drop-shadow-md">
                             Akademik Karar Destek Sistemi
                         </p>
                     </div>
