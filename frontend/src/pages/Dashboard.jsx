@@ -10,35 +10,33 @@ import AcademicFunnel from '../components/dashboard/AcademicFunnel';
 
 const Dashboard = () => {
     return (
-        <div className="min-h-screen bg-[#f8fafc]/50 pb-20">
-            <main className="max-w-[1600px] mx-auto px-6 lg:px-12 py-12">
+        <div className="min-h-screen bg-slate-50 pb-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
                 {/* Header Section */}
-                <div className="mb-12 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-5xl font-black text-gray-900 tracking-tight">KDS Dashboard</h1>
-                        <p className="text-xl text-gray-400 mt-2 font-bold uppercase tracking-widest text-xs">Karar Destek Sistemi • AKAS v2.0</p>
-                    </div>
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Genel Bakış</h1>
+                    <p className="text-sm text-slate-500 mt-1">Akademik performans ve risk durumu analizi.</p>
                 </div>
 
                 {/* 1. High-Level KPIs */}
-                <div className="mb-12">
+                <div className="mb-8">
                     <StatCards />
                 </div>
 
                 {/* 2. Analytical Deep-Dive */}
-                <div className="mb-12">
+                <div className="mb-8">
                     <DetailedStats />
                 </div>
 
                 {/* 3. Operational Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
                     {/* Primary Action Zone (Span 8) */}
-                    <div className="xl:col-span-8 space-y-10">
+                    <div className="xl:col-span-8 space-y-6">
 
                         {/* Critical Risk Management */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                             <div className="lg:col-span-8 h-full">
                                 <RiskyStudentsTable />
                             </div>
@@ -48,14 +46,14 @@ const Dashboard = () => {
                         </div>
 
                         {/* Curriculum Analysis */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <CoursePerformanceBars />
                             <CourseRepeatAnalysis />
                         </div>
                     </div>
 
                     {/* Strategic Sidebar (Span 4) */}
-                    <div className="xl:col-span-4 space-y-10">
+                    <div className="xl:col-span-4 space-y-6">
                         <div className="h-auto">
                             <AdvisorWorkloadChart />
                         </div>
@@ -71,4 +69,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

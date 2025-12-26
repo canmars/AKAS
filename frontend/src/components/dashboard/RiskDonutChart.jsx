@@ -31,7 +31,7 @@ const RiskDonutChart = () => {
                         {
                             data: [data.high || 0, data.medium || 0, data.low || 0],
                             backgroundColor: ['#EF4444', '#F59E0B', '#10B981'],
-                            hoverOffset: 15,
+                            hoverOffset: 4,
                             borderWidth: 0,
                         },
                     ],
@@ -54,36 +54,40 @@ const RiskDonutChart = () => {
                 position: 'bottom',
                 labels: {
                     usePointStyle: true,
-                    padding: 25,
-                    font: { size: 11, family: 'Outfit', weight: '700' },
+                    padding: 20,
+                    font: { size: 12 },
                     color: '#64748b'
                 }
             },
             tooltip: {
-                backgroundColor: '#1e2532',
-                padding: 16,
-                cornerRadius: 16,
-                titleFont: { family: 'Outfit', size: 13, weight: '900' },
-                bodyFont: { family: 'Outfit', size: 12, weight: '600' },
+                backgroundColor: '#1e293b',
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: { size: 13 },
+                bodyFont: { size: 12 },
                 displayColors: true,
-                boxPadding: 6
+                boxPadding: 4
             }
         }
     };
 
-    if (loading) return <div className="kds-card p-12 h-64 flex flex-col items-center justify-center animate-pulse"><div className="w-8 h-8 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin"></div></div>;
+    if (loading) return (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center h-full flex items-center justify-center">
+            <span className="text-slate-400 font-medium animate-pulse">Yükleniyor...</span>
+        </div>
+    );
 
     return (
-        <div className="kds-card p-10 h-full flex flex-col">
-            <div className="mb-8">
-                <h3 className="text-2xl font-black text-gray-900 leading-tight">Risk Dağılımı</h3>
-                <p className="text-gray-400 font-medium mt-1 uppercase text-xs tracking-widest">Genel Başarı Segmentasyonu</p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-full flex flex-col">
+            <div className="mb-6">
+                <h3 className="text-lg font-bold text-slate-800">Risk Dağılımı</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Genel Başarı Segmentasyonu</p>
             </div>
             <div className="flex-1 relative min-h-[250px] flex items-center justify-center">
                 <Doughnut data={chartData} options={options} />
                 <div className="absolute flex flex-col items-center pointer-events-none mt-[-15px]">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Toplam Takip</span>
-                    <span className="text-3xl font-black text-gray-900 leading-none mt-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Toplam</span>
+                    <span className="text-3xl font-bold text-slate-900 leading-none mt-1">
                         {chartData ? chartData.datasets[0].data.reduce((a, b) => a + b, 0) : 0}
                     </span>
                 </div>

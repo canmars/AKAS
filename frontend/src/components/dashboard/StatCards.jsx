@@ -7,7 +7,7 @@ const StatCards = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
         totalStudents: 0,
-        totalStudentsChange: '+0%',
+        totalStudentsChange: '0%',
         riskyStudents: 0,
         riskyPercentage: '0%',
         activeTheses: 0,
@@ -45,97 +45,95 @@ const StatCards = () => {
         fetchStats();
     }, []);
 
-    const ArrowRight = () => (
-        <svg className="w-5 h-5 ml-1.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-    );
-
     const StatCard = ({ title, value, subtext, icon, change, colorClass, onClick, bgColor, highlight }) => (
         <div
             onClick={onClick}
-            className="kds-card p-10 flex flex-col justify-between cursor-pointer group relative overflow-hidden h-full"
+            className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200 cursor-pointer p-6 flex flex-col justify-between h-full"
         >
-            <div className={`absolute top-0 right-0 w-32 h-32 ${bgColor} opacity-[0.03] rounded-bl-full transform translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-700`}></div>
-
-            <div className="relative z-10">
-                <div className="flex justify-between items-start mb-10">
-                    <div className={`p-6 ${bgColor} ${colorClass} rounded-[28px] shadow-sm transform group-hover:rotate-6 transition-transform duration-500`}>
-                        {icon}
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wide">{title}</h3>
+                    <div className="mt-1 flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-slate-900 tracking-tighter">{value}</span>
+                        {highlight && (
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${bgColor} ${colorClass}`}>
+                                {highlight}
+                            </span>
+                        )}
                     </div>
+                </div>
+                <div className={`p-3 rounded-lg ${bgColor} ${colorClass} bg-opacity-50`}>
+                    {React.cloneElement(icon, { className: "w-6 h-6" })}
+                </div>
+            </div>
+
+            <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-50">
+                <div className="flex items-center gap-2">
                     {change && (
-                        <span className="bg-emerald-50 text-emerald-600 text-[11px] font-black px-4 py-2 rounded-xl flex items-center uppercase tracking-widest border border-emerald-100/50 shadow-sm animate-pulse-soft">
-                            <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        <span className="inline-flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
                             {change}
                         </span>
                     )}
-                    {highlight && (
-                        <span className="bg-red-50 text-red-500 text-[11px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border border-red-100/50 shadow-sm">
-                            {highlight}
-                        </span>
-                    )}
+                    <span className="text-sm text-slate-400 font-medium truncate max-w-[120px]" title={subtext}>{subtext}</span>
                 </div>
-
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">{title}</h3>
-                <div className="flex items-baseline gap-3">
-                    <span className="text-7xl font-black text-gray-900 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300">{value}</span>
-                </div>
-                <p className="mt-8 text-base font-bold text-gray-400 tracking-tight">{subtext}</p>
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-gray-50 flex items-center justify-between">
-                <button className={`text-[11px] font-black flex items-center uppercase tracking-widest ${colorClass}`}>
-                    Analiz Detayları <ArrowRight />
-                </button>
+                <svg className="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
             </div>
         </div>
     );
 
-    if (loading) return <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 animate-pulse">
-        {[...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-100 rounded-[32px]"></div>)}
-    </div>;
+    if (loading) return (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-40 bg-slate-100 rounded-xl animate-pulse"></div>
+            ))}
+        </div>
+    );
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     title="Toplam Öğrenci"
                     value={stats.totalStudents}
-                    subtext="Aktif Akademik Popülasyon"
+                    subtext="Aktif Kayıt"
                     change={stats.totalStudentsChange}
-                    icon={<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+                    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
                     bgColor="bg-blue-50"
                     colorClass="text-blue-600"
                     onClick={() => navigate('/students')}
                 />
 
                 <StatCard
-                    title="Risk Analizi"
+                    title="Riskli Öğrenci"
                     value={stats.riskyStudents}
-                    subtext="Müdahale Gerekli %"
+                    subtext="Müdahale Bekleyen"
                     highlight={`%${stats.riskyPercentage}`}
-                    icon={<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
+                    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
                     bgColor="bg-red-50"
-                    colorClass="text-red-500"
+                    colorClass="text-red-600"
                     onClick={() => navigate('/students?filter=high_risk')}
                 />
 
                 <StatCard
                     title="Ortalama Yük"
                     value={stats.advisorLoad}
-                    subtext="Danışman / Öğrenci"
+                    subtext={`Hedef: ${stats.advisorTarget}`}
                     highlight={stats.advisorStatus === 'good' ? 'İDEAL' : 'YÜKSEK'}
-                    icon={<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>}
-                    bgColor="bg-indigo-50"
-                    colorClass="text-indigo-600"
+                    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>}
+                    bgColor={stats.advisorStatus === 'good' ? 'bg-emerald-50' : 'bg-amber-50'}
+                    colorClass={stats.advisorStatus === 'good' ? 'text-emerald-600' : 'text-amber-600'}
                     onClick={() => navigate('/academic-staff')}
                 />
 
                 <StatCard
-                    title="Tez Süreci"
+                    title="Aktif Tez"
                     value={stats.activeTheses}
-                    subtext={`Havuz: ${stats.totalThesesPool} Aktif`}
-                    icon={<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
-                    bgColor="bg-amber-50"
-                    colorClass="text-amber-500"
+                    subtext={`Toplam Havuz: ${stats.totalThesesPool}`}
+                    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
+                    bgColor="bg-indigo-50"
+                    colorClass="text-indigo-600"
                     onClick={() => navigate('/simulation')}
                 />
             </div>

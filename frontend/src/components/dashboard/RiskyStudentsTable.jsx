@@ -21,74 +21,82 @@ const RiskyStudentsTable = () => {
     }, []);
 
     const displayedStudents = students.slice(0, 5);
+    const criticalCount = students.filter(s => (100 - Math.round(parseFloat(s.gno || 0) * 20)) > 70).length;
 
-    if (loading) return <div className="kds-card p-20 text-center animate-pulse text-gray-400 font-bold">Risk Analizi Yapılıyor...</div>;
+    if (loading) return (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 flex items-center justify-center">
+            <span className="text-slate-400 font-medium animate-pulse">Yükleniyor...</span>
+        </div>
+    );
 
     return (
-        <div className="kds-card flex flex-col h-full overflow-hidden">
-            <div className="p-10 border-b border-gray-100 flex justify-between items-end bg-gray-50/10">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <div>
-                    <h3 className="text-2xl font-black text-gray-900 leading-tight">Müdahale Gerekli Öğrenciler</h3>
-                    <p className="text-gray-400 font-medium mt-1">Akademik takvimin gerisinde kalanlar</p>
+                    <h3 className="text-lg font-bold text-slate-800">Müdahale Gerekli Öğrenciler</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Akademik takvimin gerisinde kalanlar</p>
                 </div>
                 <div className="flex gap-2">
-                    <span className="bg-red-50 text-red-500 text-[10px] font-black px-4 py-2 rounded-xl border border-red-100 uppercase tracking-widest">Kritik: {students.filter(s => (100 - Math.round(parseFloat(s.gno || 0) * 20)) > 70).length}</span>
+                    <span className="bg-red-50 text-red-600 text-xs font-medium px-2.5 py-1 rounded-full border border-red-100">
+                        Kritik: {criticalCount}
+                    </span>
                 </div>
             </div>
 
-            <div className="overflow-x-auto custom-scrollbar flex-1">
+            <div className="overflow-x-auto flex-1">
                 <table className="w-full text-left">
-                    <thead className="bg-[#fbfcfd] border-b border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                    <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th className="px-10 py-6">ÖĞRENCİ PROFİLİ</th>
-                            <th className="px-10 py-6">PROGRAM/AŞAMA</th>
-                            <th className="px-10 py-6">RİSK SKORU</th>
-                            <th className="px-10 py-6">AKSİYON</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Öğrenci Profili</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Program/Aşama</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Risk Skoru</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksiyon</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-slate-100">
                         {displayedStudents.map((student, index) => {
                             const gno = parseFloat(student.gno || 0);
                             const score = Math.max(0, 100 - Math.round(gno * 20));
                             const isCritical = score > 70;
-
                             const initials = ((student.ad?.charAt(0) || '') + (student.soyad?.charAt(0) || '')).toUpperCase();
 
                             return (
-                                <tr key={index} className="hover:bg-blue-50/20 transition-all cursor-pointer group">
-                                    <td className="px-10 py-8">
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border-2 border-white flex items-center justify-center text-indigo-500 font-black text-lg shadow-sm transform group-hover:scale-110 transition-transform">
+                                <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold ring-2 ring-white">
                                                 {initials}
                                             </div>
                                             <div>
-                                                <p className="font-black text-gray-900 text-lg uppercase tracking-tight group-hover:text-blue-600 transition-colors">
+                                                <p className="text-sm font-medium text-slate-900">
                                                     {student.ad} {student.soyad}
                                                 </p>
-                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">#{student.ogrenci_no || '2023001'}</p>
+                                                <p className="text-xs text-slate-500">#{student.ogrenci_no || '2023001'}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-8">
-                                        <p className="text-sm font-black text-gray-700 uppercase tracking-tight">{student.program_adi || 'Bilinmiyor'}</p>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">GNO: {student.gno}</p>
+                                    <td className="px-6 py-4">
+                                        <p className="text-sm text-slate-700">{student.program_adi || 'Bilinmiyor'}</p>
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 mt-1">
+                                            GNO: {student.gno}
+                                        </span>
                                     </td>
-                                    <td className="px-10 py-8">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-24 h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full transition-all duration-1000 ${isCritical ? 'bg-red-500' : 'bg-amber-500'}`}
+                                                    className={`h-full rounded-full ${isCritical ? 'bg-red-500' : 'bg-amber-500'}`}
                                                     style={{ width: `${score}%` }}
                                                 ></div>
                                             </div>
-                                            <span className={`text-base font-black ${isCritical ? 'text-red-500' : 'text-amber-500'}`}>
+                                            <span className={`text-xs font-bold ${isCritical ? 'text-red-600' : 'text-amber-600'}`}>
                                                 {score}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-8">
-                                        <button className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isCritical ? 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}>
-                                            Müdahale Et
+                                    <td className="px-6 py-4 text-right">
+                                        <button className="text-blue-600 hover:text-blue-800 text-xs font-medium hover:underline">
+                                            İncele
                                         </button>
                                     </td>
                                 </tr>
@@ -98,10 +106,10 @@ const RiskyStudentsTable = () => {
                 </table>
             </div>
 
-            <div className="p-8 border-t border-gray-50 bg-gray-50/20 text-center">
-                <a href="/students" className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] hover:tracking-[0.3em] transition-all flex items-center justify-center gap-2 group">
-                    Kritik Listeyi Analiz Et
-                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <a href="/students" className="text-xs font-medium text-slate-500 hover:text-blue-600 flex items-center gap-1 transition-colors">
+                    Tüm Listeyi Gör
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                 </a>
             </div>
         </div>

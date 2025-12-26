@@ -46,8 +46,8 @@ const CoursePerformanceBars = () => {
                                 label: 'Ders Ortalaması',
                                 data: averages,
                                 backgroundColor: bgColors,
-                                borderRadius: 16,
-                                barThickness: 32,
+                                borderRadius: 4,
+                                barThickness: 24,
                             },
                         ],
                     });
@@ -68,11 +68,11 @@ const CoursePerformanceBars = () => {
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: '#1e2532',
-                padding: 16,
-                cornerRadius: 16,
-                titleFont: { family: 'Outfit', size: 14, weight: '900' },
-                bodyFont: { family: 'Outfit', size: 13, weight: '600' },
+                backgroundColor: '#1e293b',
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: { size: 13 },
+                bodyFont: { size: 12 },
                 displayColors: false,
                 callbacks: {
                     label: (context) => `Ortalama: ${context.parsed.x}`
@@ -85,7 +85,7 @@ const CoursePerformanceBars = () => {
                 max: 4.0,
                 grid: { color: '#f1f5f9', drawBorder: false },
                 ticks: {
-                    font: { family: 'Outfit', size: 12, weight: '700' },
+                    font: { size: 11 },
                     color: '#94a3b8',
                     stepSize: 1
                 }
@@ -93,7 +93,7 @@ const CoursePerformanceBars = () => {
             y: {
                 grid: { display: false },
                 ticks: {
-                    font: { family: 'Outfit', weight: '800', size: 11 },
+                    font: { weight: '500', size: 11 },
                     color: '#64748b',
                     autoSkip: false,
                 }
@@ -102,21 +102,17 @@ const CoursePerformanceBars = () => {
     };
 
     if (loading) return (
-        <div className="kds-card p-12 h-full flex flex-col items-center justify-center space-y-4">
-            <div className="w-10 h-10 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Veriler İşleniyor...</p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 h-full flex items-center justify-center">
+            <span className="text-slate-400 font-medium animate-pulse">Yükleniyor...</span>
         </div>
     );
 
     return (
-        <div className="kds-card p-10 h-full flex flex-col">
-            <div className="mb-10 flex justify-between items-start">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-full flex flex-col">
+            <div className="mb-6 flex justify-between items-start">
                 <div>
-                    <h3 className="text-2xl font-black text-gray-900 leading-tight">Ders Başarı Analizi</h3>
-                    <p className="text-gray-400 font-medium mt-1 uppercase text-xs tracking-widest">En Düşük Ortalamalı 8 Ders</p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-2xl">
-                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    <h3 className="text-lg font-bold text-slate-800">Ders Başarı Analizi</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">En Düşük Ortalamalı 8 Ders</p>
                 </div>
             </div>
             <div className="flex-1 min-h-[350px]">
