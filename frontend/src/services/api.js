@@ -1,7 +1,21 @@
-import axios from 'axios';
+const BASE_URL = 'http://localhost:5000/api';
 
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Adjust if backend runs on different port
-});
+const api = {
+  get: async (endpoint) => {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Request Failed: ${response.status} ${response.statusText}`);
+    }
+
+    // Return the parsed JSON directly
+    return await response.json();
+  },
+};
 
 export default api;
