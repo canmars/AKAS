@@ -1,33 +1,23 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import dashboardRouter from './routers/dashboard.js';
-import stageTrackingRouter from './routers/stageTracking.js';
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-dotenv.config();
+const advisorRouter = require('./routers/advisorRouter');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Routes
+app.use('/api/advisors', advisorRouter);
 
-// API Routes
-app.use('/api/dashboard', dashboardRouter);
-app.use('/api/stage-tracking', stageTrackingRouter);
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Bir hata oluştu' });
+app.get('/', (req, res) => {
+  res.send('AKAS Backend API is running');
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-

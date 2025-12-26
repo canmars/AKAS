@@ -16,40 +16,78 @@ Bu proje, geleneksel öğrenci işleri otomasyonlarından farklı olarak **opera
 
 ---
 
-## 🛠️ Teknoloji Yığını
+### 🏗️ Proje Mimarisi ve Klasör Yapısı (MVC)
 
-Proje **Monorepo** yapısında olup, modern web teknolojileri ile geliştirilmiştir.
+Proje, **Model-View-Controller (MVC)** tasarım desenine sadık kalınarak yapılandırılmıştır. Bu yapı, hem Backend hem de Frontend tarafında kodun sürdürülebilirliğini, okunabilirliğini ve geliştirilebilirliğini artırmayı hedefler.
 
-| Alan | Teknoloji |
-|---|---|
-| **Frontend** | React 19, Vite, Tailwind CSS v3, Chart.js, Lucide Icons |
-| **Backend** | Node.js, Express.js |
-| **Veritabanı** | PostgreSQL (Supabase) |
-| **Mimari** | Model-View-Controller (MVC) |
+#### **Mimari Yaklaşım**
+*   **Model**: Veritabanı şeması ve veri erişim katmanı (Supabase/PostgreSQL).
+*   **View**: Kullanıcının etkileşime girdiği arayüz (React Frontend).
+*   **Controller**: İş mantığının (Business Logic) işlendiği ve Model-View arasındaki iletişimi sağlayan katman (Node.js Backend).
 
----
+#### **Teknoloji Yığını (Tech Stack)**
+*   **Frontend**: React.js, Vite, Tailwind CSS, Chart.js
+*   **Backend**: Node.js, Express.js
+*   **Veritabanı**: PostgreSQL (Supabase). Extensions: pg_cron, pg_trgm, vector
 
-## 📂 Proje Yapısı
+#### **Detaylı Klasör Yapısı**
+Aşağıda, projenin hedeflediği **tam klasör yapısı** yer almaktadır. Henüz boş olabilir yahut isimlerin ve dosyaların içeriği değişim gösterebilir ancak bu mimari yapısı bütünlük oluşturup proje anlaşılmasını kolaylaştırılması için oluşturulmuştur.
 
-```bash
+```
 AKAS/
-├── backend/                # Node.js API & Server
+├── backend/                        # 🧠 BACKEND (Node.js/Express)
 │   ├── server/
-│   │   ├── controllers/    # İş Mantığı
-│   │   ├── models/         # Veritabanı Modelleri
-│   │   ├── routes/         # API Endpoint'leri
-│   │   └── server.js       # Giriş Noktası
-│   └── package.json
+│   │   ├── config/                 # Konfigürasyon dosyaları (db, cors vb.)
+│   │   ├── controllers/            # İş mantığı (Business Logic)
+│   │   │   ├── authController.js
+│   │   │   ├── dashboardController.js
+│   │   │   └── studentController.js
+│   │   ├── middlewares/            # Ara katman yazılımları (Auth, Error Handling)
+│   │   │   ├── authMiddleware.js
+│   │   │   └── errorMiddleware.js
+│   │   ├── models/                 # Veri modelleri ve DB sorguları (Supabase)
+│   │   │   ├── studentModel.js
+│   │   │   └── userModel.js
+│   │   ├── routers/                # API Rotaları (URL Yönlendirmeleri)
+│   │   │   ├── authRouters.js
+│   │   │   └── dashboardRouters.js
+│   │   ├── utils/                  # Yardımcı fonksiyonlar
+│   │   │   ├── helpers.js
+│   │   │   └── validators.js
+│   │   └── server.js               # Entry Point (Uygulama Giriş Noktası)
+│   ├── scripts/                    # Veri tohumlama/bakım scriptleri
+│   ├── .env                        # Hassas ortam değişkenleri
+│   └── package.json                # Backend bağımlılıkları
 │
-├── frontend/               # React UI
+├── frontend/                       # 🎨 FRONTEND (React)
 │   ├── src/
-│   │   ├── components/     # UI Bileşenleri
-│   │   ├── pages/          # Sayfalar (Dashboard, Login vb.)
-│   │   ├── services/       # API İstekleri
-│   │   └── App.jsx
-│   └── package.json
+│   │   ├── assets/                 # Statik dosyalar (Görseller, ikonlar)
+│   │   ├── components/             # Tekrar kullanılabilir UI bileşenleri
+│   │   │   ├── common/             # Genel bileşenler (Button, Input)
+│   │   │   ├── dashboard/          # Dashboard'a özel bileşenler
+│   │   │   └── layout/             # Header, Sidebar vb.
+│   │   ├── contexts/               # React Context (Global State)
+│   │   ├── hooks/                  # Custom React Hooks
+│   │   ├── layouts/                # Sayfa şablonları (MainLayout, AuthLayout)
+│   │   ├── pages/                  # Sayfa Görünümleri (Views)
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   └── StageTracking.jsx
+│   │   ├── services/               # API Servisleri (Backend ile iletişim)
+│   │   │   ├── api.js              # Axios instance
+│   │   │   └── authService.js
+│   │   ├── styles/                 # Global stiller ve Tailwind ayarları
+│   │   ├── utils/                  # Frontend yardımcı fonksiyonları
+│   │   │   ├── constants.js
+│   │   │   └── formatters.js
+│   │   ├── App.jsx                 # Ana React Bileşeni ve Router Tanımları
+│   │   └── main.jsx                # React Entry Point
+│   ├── index.html                  # Ana HTML Dosyası
+│   ├── vite.config.js              # Vite Konfigürasyonu
+│   ├── tailwind.config.js          # Tailwind Konfigürasyonu
+│   └── package.json                # Frontend bağımlılıkları
 │
-└── package.json            # Root Orkestrasyon
+└── package.json                    # Root orkestrasyon dosyası
 ```
 
 ---
