@@ -1,8 +1,29 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        // localStorage'dan kullanıcı bilgilerini al
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+    }, []);
+
+    const handleLogout = () => {
+        // localStorage'ı temizle
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('rememberMe');
+
+        // Login sayfasına yönlendir
+        navigate('/login');
+    };
 
     const navLinks = [
         { name: 'Bölüm Özeti', path: '/' },
@@ -44,8 +65,37 @@ const Header = () => {
                         </svg>
                         <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
                     </button>
-                    <div className="w-11 h-11 bg-gray-200 rounded-2xl overflow-hidden border-2 border-white shadow-md cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
-                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" alt="Profile" />
+
+                    {/* User Menu */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowUserMenu(!showUserMenu)}
+                            className="w-11 h-11 bg-gray-200 rounded-2xl overflow-hidden border-2 border-white shadow-md cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all"
+                        >
+                            <img src={`https://ui-avatars.com/api/?name=${user?.ad_soyad || 'User'}&background=0D8ABC&color=fff`} alt="Profile" />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {showUserMenu && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                                <div className="px-4 py-3 border-b border-gray-100">
+                                    <p className="text-sm font-bold text-gray-900">{user?.ad_soyad || 'Kullanıcı'}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
+                                    <span className="inline-block mt-2 px-2 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded">
+                                        {user?.role === 'Bolum_Baskani' ? 'Bölüm Başkanı' : user?.role === 'Danisman' ? 'Danışman' : user?.role}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Çıkış Yap
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
