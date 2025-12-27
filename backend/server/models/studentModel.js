@@ -140,10 +140,46 @@ const getFunnelMetrics = async () => {
     }
 };
 
+const getDashboardKPIsV2 = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_dashboard_kpis_v2');
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching dashboard KPIs v2:", error.message);
+        return null;
+    }
+};
+
+const getFunnelStatsV2 = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_dashboard_funnel_stats');
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching funnel stats v2:", error.message);
+        return [];
+    }
+};
+
+const getCriticalAlarms = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_critical_student_alarms');
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching critical alarms:", error.message);
+        return [];
+    }
+};
+
 module.exports = {
     getRiskyStudents,
     getRiskDistribution,
     getDashboardKPIs,
     getAdvisorLoadMetrics,
-    getFunnelMetrics
+    getFunnelMetrics,
+    getDashboardKPIsV2,
+    getFunnelStatsV2,
+    getCriticalAlarms
 };

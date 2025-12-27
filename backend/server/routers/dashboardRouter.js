@@ -9,5 +9,7 @@ router.get('/risk-distribution', dashboardController.getRiskDistributionAnalytic
 router.get('/kpis', dashboardController.getKPIs);
 router.get('/advisor-load', dashboardController.getAdvisorLoad);
 router.get('/funnel', dashboardController.getFunnel);
+router.get('/critical-alarms', dashboardController.getCriticalAlarms);
 
 module.exports = router;
+
