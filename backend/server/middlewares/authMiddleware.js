@@ -112,7 +112,19 @@ const verifyRole = (...allowedRoles) => {
     };
 };
 
+/**
+ * authorizeRoles - verifyRole'ün semantik alias'ı
+ * 
+ * Route tanımlarında daha açıklayıcı olması için kullanılır.
+ * Aynı fonksiyonaliteyi sağlar.
+ * 
+ * Kullanım:
+ * router.get('/admin-only', verifyToken, authorizeRoles('Bolum_Baskani'), controller)
+ */
+const authorizeRoles = verifyRole;
+
 module.exports = {
     verifyToken,
-    verifyRole
+    verifyRole,
+    authorizeRoles
 };
