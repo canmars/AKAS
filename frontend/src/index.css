@@ -10,6 +10,7 @@
 
     body {
         @apply bg-slate-50 text-slate-600 antialiased;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     }
 

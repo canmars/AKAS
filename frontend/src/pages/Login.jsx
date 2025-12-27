@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GraduationCap, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [userType, setUserType] = useState('academic'); // academic, admin
+    const [activeTab, setActiveTab] = useState('academic'); // 'academic' or 'admin'
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -37,7 +38,7 @@ const Login = () => {
             }
 
             if (data.success) {
-                // Token'ı localStorage'a kaydet
+                // Token ve user bilgisini kaydet
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -46,7 +47,7 @@ const Login = () => {
                     localStorage.setItem('rememberMe', 'true');
                 }
 
-                // Role göre yönlendir
+                // Backend'den gelen redirectUrl'e yönlendir
                 navigate(data.user.redirectUrl || '/');
             } else {
                 setError(data.message || 'Giriş başarısız');
@@ -61,165 +62,188 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex">
-            {/* Branding Sidebar */}
-            <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden">
-                <img
-                    src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop"
-                    alt="Campus"
-                    className="absolute inset-0 w-full h-full object-cover opacity-40" // Reduced opacity, removed blend mode for better text contrast
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/30"></div> {/* Stronger gradient */}
+            {/* Sol Taraf - Branding */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+                {/* Arka plan görseli - Bina/Kampüs */}
+                <div
+                    className="absolute inset-0 opacity-25"
+                    style={{
+                        backgroundImage: 'url(https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2070&auto=format&fit=crop)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        filter: 'blur(1.5px)'
+                    }}
+                ></div>
 
-                <div className="relative z-10 w-full p-20 flex flex-col justify-end text-white">
-                    <div className="mb-8">
-                        <div className="flex items-center gap-4 mb-6">
-                            <span className="text-6xl drop-shadow-md">🎓</span>
-                            <h1 className="text-6xl font-black tracking-tighter drop-shadow-md text-white">AKAS</h1>
-                        </div>
-                        <p className="text-2xl font-bold text-white leading-relaxed max-w-lg drop-shadow-md">
-                            Akademik Karar Destek Sistemi
-                        </p>
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/85 to-slate-900/70"></div>
+
+                {/* İçerik */}
+                <div className="relative z-10 flex flex-col items-center justify-center w-full p-16 text-white">
+                    {/* Logo */}
+                    <div className="mb-8 bg-slate-800/40 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/30">
+                        <GraduationCap className="w-14 h-14 text-white" strokeWidth={1.5} />
                     </div>
 
-                    <div className="space-y-6">
-                        <p className="text-lg text-slate-400 font-medium border-l-4 border-blue-500 pl-6 leading-relaxed">
-                            Veri odaklı akademik gelecek için güvenli, hızlı ve profesyonel yönetim paneli.
-                        </p>
+                    {/* Başlık - Beyaz renk */}
+                    <h1 className="text-6xl font-bold mb-3 tracking-tight text-white" style={{ fontWeight: 700 }}>
+                        AKAS
+                    </h1>
+                    <p className="text-lg text-slate-300 font-normal mb-12" style={{ fontWeight: 400 }}>
+                        Akademik Karar Destek Sistemi
+                    </p>
 
-                        {/* Slider Indicators (Visual) */}
-                        <div className="flex gap-2 mt-12">
-                            <div className="w-12 h-1.5 bg-blue-500 rounded-full"></div>
-                            <div className="w-2 h-1.5 bg-slate-600 rounded-full"></div>
-                            <div className="w-2 h-1.5 bg-slate-600 rounded-full"></div>
-                        </div>
+                    {/* Alt çizgi */}
+                    <div className="w-20 h-0.5 bg-blue-500 rounded-full mb-12"></div>
+
+                    {/* Alt bilgi */}
+                    <div className="absolute bottom-12 text-center">
+                        <p className="text-slate-400 text-sm font-normal" style={{ fontWeight: 400 }}>
+                            Dokuz Eylül Üniversitesi
+                        </p>
                     </div>
                 </div>
             </div>
 
-            {/* Login Form */}
-            <div className="flex-1 flex flex-col justify-center items-center bg-white p-8">
-                <div className="w-full max-w-[400px]">
-                    <div className="mb-10">
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Hesabınıza Erişin</h2>
-                        <p className="text-slate-500 font-medium">Lütfen kurum kimliğinizle giriş yapın.</p>
+            {/* Sağ Taraf - Form */}
+            <div className="flex-1 flex items-center justify-center bg-white p-8">
+                <div className="w-full max-w-md">
+                    {/* Başlık */}
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontWeight: 700 }}>
+                            Sisteme Giriş
+                        </h2>
+                        <p className="text-gray-600 font-normal" style={{ fontWeight: 400 }}>
+                            Devam etmek için lütfen giriş yapınız.
+                        </p>
                     </div>
 
-                    {/* Type Toggle */}
-                    <div className="flex bg-slate-50 p-1.5 rounded-xl border border-slate-200 mb-8">
+                    {/* Tab Seçici */}
+                    <div className="flex mb-8 bg-gray-50 rounded-xl p-1 border border-gray-200">
                         <button
-                            onClick={() => setUserType('academic')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${userType === 'academic' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            onClick={() => setActiveTab('academic')}
+                            className={`flex-1 py-3 px-4 rounded-lg text-sm transition-all duration-200 ${activeTab === 'academic'
+                                ? 'bg-blue-600 text-white shadow-sm font-semibold'
+                                : 'text-gray-600 hover:text-gray-900 font-medium'
+                                }`}
+                            style={{ fontWeight: activeTab === 'academic' ? 600 : 500 }}
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             Akademisyen Girişi
                         </button>
                         <button
-                            onClick={() => setUserType('admin')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${userType === 'admin' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            onClick={() => setActiveTab('admin')}
+                            className={`flex-1 py-3 px-4 rounded-lg text-sm transition-all duration-200 ${activeTab === 'admin'
+                                ? 'bg-blue-600 text-white shadow-sm font-semibold'
+                                : 'text-gray-600 hover:text-gray-900 font-medium'
+                                }`}
+                            style={{ fontWeight: activeTab === 'admin' ? 600 : 500 }}
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             Yönetici Girişi
                         </button>
                     </div>
 
-                    {/* Error Message */}
+                    {/* Hata Mesajı */}
                     {error && (
                         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-                            <div className="flex items-center gap-3">
-                                <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p className="text-sm font-medium text-red-800">{error}</p>
-                            </div>
+                            <p className="text-sm text-red-800 font-medium" style={{ fontWeight: 500 }}>
+                                {error}
+                            </p>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-900 uppercase tracking-wide">Kurumsal E-posta</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                                </div>
-                                <input
-                                    type="email"
-                                    required
-                                    className="block w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
-                                    placeholder="ad.soyad@universite.edu.tr"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Email Input */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontWeight: 600 }}>
+                                Kurumsal E-Posta
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all font-normal"
+                                placeholder="ad.soyad@deu.edu.tr"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                style={{ fontWeight: 400 }}
+                            />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-900 uppercase tracking-wide">Şifre</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                </div>
+                        {/* Password Input */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontWeight: 600 }}>
+                                Şifre
+                            </label>
+                            <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     required
-                                    className="block w-full pl-11 pr-12 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium tracking-widest"
-                                    placeholder="••••••••"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all pr-12 font-normal"
+                                    placeholder="••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    style={{ fontWeight: 400 }}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     {showPassword ? (
-                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                        <EyeOff className="w-5 h-5" />
                                     ) : (
-                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        <Eye className="w-5 h-5" />
                                     )}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer"
-                                    checked={formData.remember}
-                                    onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">Beni Hatırla</span>
+                        {/* Beni Hatırla Checkbox */}
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="remember"
+                                checked={formData.remember}
+                                onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                            />
+                            <label
+                                htmlFor="remember"
+                                className="ml-2 text-sm text-gray-700 font-medium cursor-pointer"
+                                style={{ fontWeight: 500 }}
+                            >
+                                Beni Hatırla
                             </label>
-                            <a href="#" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                                Şifremi Unuttum?
-                            </a>
                         </div>
 
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:transform-none disabled:shadow-blue-100"
+                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 transition-all duration-200 flex items-center justify-center gap-2 group"
+                            style={{ fontWeight: 600 }}
                         >
                             {isLoading ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Giriş yapılıyor...
-                                </span>
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <span>Giriş yapılıyor...</span>
+                                </>
                             ) : (
-                                'Giriş Yap'
+                                <>
+                                    <span>Giriş Yap</span>
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </>
                             )}
                         </button>
                     </form>
 
-                    <div className="mt-12 pt-8 border-t border-slate-100 text-center space-y-4">
-                        <p className="text-xs text-slate-400 font-medium">
-                            Giriş yapmakta sorun mu yaşıyorsunuz? <a href="#" className="text-blue-600 hover:underline">Bilgi İşlem</a> ile iletişime geçin.
+                    {/* Alt Bilgi */}
+                    <div className="mt-12 text-center space-y-2">
+                        <p className="text-xs text-gray-500 font-normal" style={{ fontWeight: 400 }}>
+                            Dokuz Eylül Üniversitesi
                         </p>
-                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-widest">
-                            © 2024 AKAS. Tüm hakları saklıdır. v2.0.1
+                        <p className="text-xs text-gray-400 font-normal" style={{ fontWeight: 400 }}>
+                            Yönetim Bilişim Sistemleri © 2025
                         </p>
                     </div>
                 </div>
