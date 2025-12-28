@@ -46,6 +46,18 @@ const getThesisFunnelStats = async () => {
     }
 };
 
+const getActiveThesesDetail = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_active_theses_detail');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching active theses detail:", error.message);
+        return [];
+    }
+};
+
 module.exports = {
     getThesisFunnelStats,
+    getActiveThesesDetail,
 };

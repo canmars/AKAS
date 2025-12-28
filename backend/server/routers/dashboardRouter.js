@@ -77,6 +77,45 @@ router.get('/funnel/students',
     dashboardController.getStudentsByStage
 );
 
+// Ders Risk Analizi (Ders başarısızlık ve risk metrikleri)
+router.get('/course-risk',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getCourseRiskMetrics
+);
+
+// ============================================
+// DETAY MODAL ENDPOINT'LERİ
+// ============================================
+
+// Riskli öğrenciler detay listesi
+router.get('/details/risky-students',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getRiskyStudentsDetail
+);
+
+// Danışman öğrenci listesi (Ders/Tez aşaması ayrımıyla)
+router.get('/details/advisor/:id',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getAdvisorStudentsDetail
+);
+
+// Ders başarısızlık karnesi
+router.get('/details/course/:code',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getCourseFailureReport
+);
+
+// Aktif tezler detay listesi
+router.get('/details/active-theses',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getActiveThesesDetail
+);
+
 // ============================================
 // HEM BAŞKAN HEM DANIŞMAN ERİŞEBİLİR
 // ============================================

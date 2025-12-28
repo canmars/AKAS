@@ -172,6 +172,17 @@ const getStudentsByStage = async (stageName) => {
     }
 };
 
+const getRiskyStudentsDetail = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_risky_students_detail');
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching risky students detail:", error.message);
+        return [];
+    }
+};
+
 module.exports = {
     getRiskyStudents,
     getRiskDistribution,
@@ -181,5 +192,6 @@ module.exports = {
     getDashboardKPIsV2,
     getFunnelStatsV2,
     getCriticalAlarms,
-    getStudentsByStage
+    getStudentsByStage,
+    getRiskyStudentsDetail
 };

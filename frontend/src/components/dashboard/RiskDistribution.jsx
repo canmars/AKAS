@@ -8,6 +8,7 @@ import {
     Legend as ChartLegend
 } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
+import InfoTooltip from '../common/InfoTooltip';
 
 ChartJS.register(ArcElement, ChartTooltip, ChartLegend);
 
@@ -97,7 +98,33 @@ const RiskDistribution = () => {
     return (
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col">
             <div className="mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Öğrenci Risk Dağılımı</h2>
+                <div className="flex items-center gap-2 mb-1 relative z-10">
+                    <h2 className="text-lg font-bold text-gray-900">Öğrenci Risk Dağılımı</h2>
+                    <div className="relative z-[100]">
+                        <InfoTooltip
+                            title="Risk Seviyesi Kategorileri"
+                            content={[
+                                {
+                                    type: 'paragraph',
+                                    text: "Öğrenciler, hesaplanan risk skorlarına göre üç kategoriye ayrılır:"
+                                },
+                                {
+                                    type: 'list',
+                                    items: [
+                                        "Yüksek Risk: Risk skoru 70 ve üzeri olan öğrenciler. Acil müdahale gerektirir.",
+                                        "Orta Risk: Risk skoru 40-69 arası olan öğrenciler. Düzenli takip önerilir.",
+                                        "Düşük Risk: Risk skoru 0-39 arası olan öğrenciler. Normal takip yeterlidir."
+                                    ]
+                                },
+                                {
+                                    type: 'bold',
+                                    text: "Risk skorları, akademik başarı, ders durumu, TİK performansı ve zaman baskısı faktörlerine göre hesaplanır."
+                                }
+                            ]}
+                            position="bottom"
+                        />
+                    </div>
+                </div>
                 <p className="text-sm text-gray-500">Risk skorlarına göre dağılım</p>
             </div>
 

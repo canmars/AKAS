@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Info } from 'lucide-react';
+import InfoTooltip from '../common/InfoTooltip';
 
 const FunnelStep = ({ label, value, index, totalSteps, onClick }) => {
     // Width calculation: 100% down to shorter widths
@@ -176,10 +177,37 @@ const ProcessFunnel = () => {
 
     return (
         <>
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col overflow-visible">
                 <div className="flex justify-between items-start mb-8">
-                    <h2 className="text-lg font-bold text-slate-800">Akademik Huni</h2>
-                    <Info className="w-5 h-5 text-gray-300 cursor-help hover:text-gray-500 transition-colors" />
+                    <div className="flex items-center gap-2 relative z-10">
+                        <h2 className="text-lg font-bold text-slate-800">Akademik Huni</h2>
+                        <div className="relative z-[100]">
+                            <InfoTooltip
+                                title="Akademik Süreç Hunisi"
+                                content={[
+                                    {
+                                        type: 'paragraph',
+                                        text: "Bu huni, öğrencilerin akademik yolculuğundaki aşamaları gösterir:"
+                                    },
+                                    {
+                                        type: 'list',
+                                        items: [
+                                            "Ders Aşaması: Öğrenciler derslerini alıyor ve tamamlıyor.",
+                                            "Yeterlik Aşaması: Yeterlik sınavına hazırlanan öğrenciler.",
+                                            "Tez Önerisi: Tez önerisi hazırlayan veya sunan öğrenciler.",
+                                            "Tez İzleme: Tez yazım aşamasındaki öğrenciler.",
+                                            "Mezuniyet: Mezun olmuş öğrenciler."
+                                        ]
+                                    },
+                                    {
+                                        type: 'bold',
+                                        text: "Her aşamaya tıklayarak o aşamadaki öğrencilerin detaylı listesini görebilirsiniz."
+                                    }
+                                ]}
+                                position="bottom"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-center py-2">

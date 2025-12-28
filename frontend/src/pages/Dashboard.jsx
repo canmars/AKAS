@@ -3,7 +3,7 @@ import DashboardStats from '../components/dashboard/DashboardStats';
 import ProcessFunnel from '../components/dashboard/ProcessFunnel';
 import RiskDistribution from '../components/dashboard/RiskDistribution';
 import AdvisorWorkload from '../components/dashboard/AdvisorWorkload';
-import CriticalAlarms from '../components/dashboard/CriticalAlarms';
+import CourseRiskAnalysis from '../components/dashboard/CourseRiskAnalysis';
 
 const Dashboard = () => {
     return (
@@ -27,13 +27,13 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Lower Section: Process Funnel and Critical Alarms */}
+                {/* Lower Section: Process Funnel and Course Risk Analysis */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     <div className="lg:col-span-6">
                         <ProcessFunnel />
                     </div>
                     <div className="lg:col-span-6">
-                        <CriticalAlarms />
+                        <CourseRiskAnalysis />
                     </div>
                 </div>
 

@@ -15,6 +15,37 @@ const getCoursePerformance = async () => {
     }
 };
 
+const getCourseRiskMetrics = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_risk_metrics');
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching course risk metrics:', error);
+        throw error;
+    }
+};
+
+const getCourseFailureReport = async (courseCode) => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_failure_report', {
+            course_code_param: courseCode
+        });
+
+        if (error) throw error;
+        return data || null;
+    } catch (error) {
+        console.error('Error fetching course failure report:', error.message);
+        return null;
+    }
+};
+
 module.exports = {
     getCoursePerformance,
+    getCourseRiskMetrics,
+    getCourseFailureReport,
 };

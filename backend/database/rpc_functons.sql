@@ -53,6 +53,8 @@ BEGIN
     LEFT JOIN public.ogrenci_risk_skorlari rs ON o.ogrenci_id = rs.ogrenci_id
     JOIN public.durum_turleri dt ON o.durum_id = dt.durum_id
     WHERE (rs.risk_skoru > 60 OR o.gno < 2.2)
+      AND o.aktif_mi = true
+      AND o.deleted_at IS NULL
     ORDER BY risk_score DESC
     LIMIT 5;
 END;
@@ -65,10 +67,10 @@ DECLARE
     result JSON;
 BEGIN
     SELECT json_build_object(
-        'toplam_ogrenci', (SELECT COUNT(*) FROM public.ogrenci),
+        'toplam_ogrenci', (SELECT COUNT(*) FROM public.ogrenci WHERE aktif_mi = true AND deleted_at IS NULL),
         'mezuniyet_orani', 78,
-        'riskli_ogrenci_sayisi', (SELECT COUNT(*) FROM public.ogrenci o LEFT JOIN public.ogrenci_risk_skorlari rs ON o.ogrenci_id = rs.ogrenci_id WHERE rs.risk_skoru > 50 OR o.gno < 2.0),
-        'danisman_ogrenci_orani', '1:' || ROUND((SELECT COUNT(*)::numeric FROM public.ogrenci) / NULLIF((SELECT COUNT(*)::numeric FROM public.akademik_personel WHERE rol = 'Danisman'), 0), 0)
+        'riskli_ogrenci_sayisi', (SELECT COUNT(*) FROM public.ogrenci o LEFT JOIN public.ogrenci_risk_skorlari rs ON o.ogrenci_id = rs.ogrenci_id WHERE (rs.risk_skoru > 50 OR o.gno < 2.0) AND o.aktif_mi = true AND o.deleted_at IS NULL),
+        'danisman_ogrenci_orani', '1:' || ROUND((SELECT COUNT(*)::numeric FROM public.ogrenci WHERE aktif_mi = true AND deleted_at IS NULL) / NULLIF((SELECT COUNT(*)::numeric FROM public.akademik_personel WHERE rol = 'Danisman' AND aktif_mi = true), 0), 0)
     ) INTO result;
     RETURN result;
 END;

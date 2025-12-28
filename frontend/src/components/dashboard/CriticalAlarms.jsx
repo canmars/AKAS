@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import { Scatter } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import InfoTooltip from '../common/InfoTooltip';
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend, annotationPlugin);
 
@@ -244,9 +245,29 @@ const CriticalAlarms = () => {
         <>
             <div className="ads-card p-10 rounded-[2.8rem] h-full flex flex-col bg-white border border-slate-100/60 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500 group/card">
                 <div className="flex justify-between items-start mb-6 shrink-0">
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2 relative z-10">
                             Risk Analizi Haritası
+                            <div className="relative z-[100]">
+                                <InfoTooltip
+                                    title="Otomatik Aksiyon Önerisi"
+                                    content={[
+                                        {
+                                            type: 'paragraph',
+                                            text: "Sistem, yüksek riskli öğrencilerin (Skor > 70) risk faktörlerini analiz ederek otomatik öneri sunar:"
+                                        },
+                                        {
+                                            type: 'list',
+                                            items: [
+                                                "'İlişik Kesme': TİK başarısızlığı veya Azami süre aşımı tespit edildiğinde.",
+                                                "'Danışman Uyarısı': Öğrenci ders aşamasında tıkanmışsa.",
+                                                "'Yönetim Kurulu': Kritik kararlar gerektiren durumlarda."
+                                            ]
+                                        }
+                                    ]}
+                                    position="bottom"
+                                />
+                            </div>
                         </h2>
                         <p className="text-xs text-slate-400 font-medium mt-1">Öğrenci riski ve akademik dönem dağılımı</p>
                     </div>

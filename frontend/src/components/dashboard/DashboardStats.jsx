@@ -1,65 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { Bar } from 'react-chartjs-2';
 import {
     Users,
     AlertTriangle,
     BookOpen,
     Scale
 } from 'lucide-react';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Tooltip,
-} from 'chart.js';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Tooltip
-);
+import DetailModal from '../common/DetailModal';
+import RiskyStudentsModal from './modals/RiskyStudentsModal';
+import ActiveThesesModal from './modals/ActiveThesesModal';
+import AdvisorWorkloadModal from './modals/AdvisorWorkloadModal';
+import InfoTooltip from '../common/InfoTooltip';
 
-import { useNavigate } from 'react-router-dom';
-
-const StatCard = ({ title, value, trend, trendDirection, trendLabel, icon: Icon, colorClass, chartData, isChartCard, onClick }) => {
-
-    // Bar Chart Implementation for Active Theses
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false } // Minimalist look
-        },
-        scales: {
-            x: { display: false },
-            y: { display: false }
-        }
-    };
-
-    const chartDataConfig = {
-        labels: chartData ? chartData.map((_, i) => i) : [],
-        datasets: [
-            {
-                data: chartData || [],
-                backgroundColor: 'rgba(168, 85, 247, 0.3)', // Purple-300 transparent
-                hoverBackgroundColor: 'rgba(168, 85, 247, 1)', // Purple-500
-                borderRadius: 4,
-                barThickness: 8,
-            }
-        ]
-    };
-
-    // Highlight last bar
-    if (chartData && chartData.length > 0) {
-        const colors = chartData.map((_, i) =>
-            i === chartData.length - 1 ? 'rgba(168, 85, 247, 1)' : 'rgba(168, 85, 247, 0.3)'
-        );
-        chartDataConfig.datasets[0].backgroundColor = colors;
-    }
+const StatCard = ({ title, value, icon: Icon, colorClass, onClick, infoTooltip }) => {
 
     // Color Configurations
     const colors = {
@@ -82,8 +37,19 @@ const StatCard = ({ title, value, trend, trendDirection, trendLabel, icon: Icon,
             )}
 
             <div className="relative z-10 flex justify-between items-start mb-2">
-                <div>
-                    <h3 className="text-gray-500 text-sm font-semibold tracking-wide">{title}</h3>
+                <div className="flex-1 overflow-visible">
+                    <div className="flex items-center gap-2 relative z-50">
+                        <h3 className="text-gray-500 text-sm font-semibold tracking-wide">{title}</h3>
+                        {infoTooltip && (
+                            <div className="relative z-[100]">
+                                <InfoTooltip
+                                    title={infoTooltip.title}
+                                    content={infoTooltip.content}
+                                    position="bottom"
+                                />
+                            </div>
+                        )}
+                    </div>
                     <div className="mt-2 text-3xl font-black text-gray-900 tracking-tight">
                         {value !== null && value !== undefined ? value : '-'}
                     </div>
@@ -93,35 +59,7 @@ const StatCard = ({ title, value, trend, trendDirection, trendLabel, icon: Icon,
                 </div>
             </div>
 
-            <div className="relative z-10 mt-4 h-8 flex items-end">
-                {isChartCard && chartData && chartData.length > 0 ? (
-                    <div className="w-full h-10">
-                        <Bar options={chartOptions} data={chartDataConfig} />
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        {/* Trend Indicator */}
-                        {trend !== undefined && (
-                            <div className={`
-                                px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1
-                                ${trend === 0
-                                    ? 'bg-gray-100 text-gray-600'
-                                    : trendDirection === 'up'
-                                        ? (colorClass === 'red' ? 'bg-red-100 text-red-700' : 'bg-emerald-50 text-emerald-600')
-                                        : (colorClass === 'red' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600')
-                                } 
-                            `}>
-                                {trend === 0 ? '•' : (trendDirection === 'up' ? '↗' : '↘')}
-                                {trend === 0 ? 'Stabil' : `${Math.abs(trend)}%`}
-                            </div>
-                        )}
-
-                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
-                            {trendLabel || 'Veri yok'}
-                        </span>
-                    </div>
-                )}
-            </div>
+            {/* Trend ve Chart bilgileri kaldırıldı */}
         </div>
     );
 };
@@ -131,6 +69,11 @@ const DashboardStats = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    
+    // Modal States
+    const [riskyStudentsModalOpen, setRiskyStudentsModalOpen] = useState(false);
+    const [activeThesesModalOpen, setActiveThesesModalOpen] = useState(false);
+    const [advisorWorkloadModalOpen, setAdvisorWorkloadModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -193,47 +136,152 @@ const DashboardStats = () => {
         {
             title: "Riskli Öğrenci",
             value: stats.riskli_ogrenci?.value,
-            trend: stats.riskli_ogrenci?.trend,
-            trendDirection: stats.riskli_ogrenci?.trend_direction,
-            trendLabel: stats.riskli_ogrenci?.label,
             icon: AlertTriangle,
             colorClass: "red",
             isChartCard: false,
-            path: '/student-analysis'
+            path: '/student-analysis',
+            infoTooltip: {
+                title: "Risk Skoru Algoritması (v3.0)",
+                content: [
+                    {
+                        type: 'paragraph',
+                        text: "Risk skoru 0-100 arasında hesaplanır. Puanlar toplanarak risk seviyesi belirlenir:"
+                    },
+                    {
+                        type: 'list',
+                        items: [
+                            "Akademik Başarısızlık (GNO < 2.50): +20 Puan",
+                            "Başarısız Dersler: Her ders için +5 Puan (Maks. 30 Puan Sigortalı)",
+                            "TİK Başarısızlığı: 1 kez ise +30 Puan, 2 kez ise direkt 100 Puan (Atılma Riski)",
+                            "Zaman Baskısı: Azami süreye 1 dönem kaldıysa +15, süre dolduysa +30 Puan"
+                        ]
+                    },
+                    {
+                        type: 'bold',
+                        text: "Not: Hesaplamaya sadece 'Aktif' statüsündeki öğrenciler dahildir."
+                    }
+                ]
+            }
         },
         {
             title: "Aktif Tezler",
             value: stats.aktif_tezler?.value,
-            trend: stats.aktif_tezler?.trend,
-            chartData: stats.aktif_tezler?.chart_data,
             icon: BookOpen,
             colorClass: "purple",
-            isChartCard: true,
-            path: '/advisor-analysis' // Closest match for thesis management for now
+            isChartCard: false,
+            path: '/advisor-analysis',
+            infoTooltip: {
+                title: "Aktif Tez Tanımı",
+                content: [
+                    {
+                        type: 'paragraph',
+                        text: "Sistemdeki tezlerden durumu sadece şu olanlar sayılmıştır:"
+                    },
+                    {
+                        type: 'list',
+                        items: [
+                            "Öneri: Tez önerisi kabul edilmiş.",
+                            "Yazım: Tez yazım aşamasında.",
+                            "Jüri: Jüri ataması yapılmış, savunma bekleyen.",
+                            "Düzeltme: Savunma sonrası ek süre (90 gün) almış tezler."
+                        ]
+                    },
+                    {
+                        type: 'bold',
+                        text: "Tamamlanan, Başarısız Olan veya İptal Edilen tezler bu sayıya dahil değildir."
+                    }
+                ]
+            }
         },
         {
             title: "Ort. Danışman Yükü",
             value: stats.danisman_yuku?.value,
-            trend: stats.danisman_yuku?.trend,
-            trendDirection: stats.danisman_yuku?.trend_direction,
-            trendLabel: stats.danisman_yuku?.label,
             icon: Scale,
             colorClass: "orange",
             isChartCard: false,
-            path: '/advisor-analysis'
+            path: '/advisor-analysis',
+            infoTooltip: {
+                title: "Ortalama Danışman Yükü Hesaplama",
+                content: [
+                    {
+                        type: 'paragraph',
+                        text: "Bu metrik, aktif öğrenci sayısının aktif danışman sayısına bölünmesiyle hesaplanır:"
+                    },
+                    {
+                        type: 'list',
+                        items: [
+                            "Aktif Öğrenci Sayısı: Sistemde aktif statüsünde olan tüm öğrenciler.",
+                            "Aktif Danışman Sayısı: Rolü 'Danışman' veya 'Bölüm Başkanı' olan aktif akademik personel.",
+                            "Hesaplama: Toplam Öğrenci / Toplam Danışman = Ortalama Yük"
+                        ]
+                    },
+                    {
+                        type: 'bold',
+                        text: "Bu değer, danışmanların genel iş yükünü gösterir. Yüksek değerler, danışman başına düşen öğrenci sayısının fazla olduğunu ifade eder."
+                    }
+                ]
+            }
         }
     ];
 
+    // Modal Handlers
+    const handleCardClick = (card) => {
+        switch (card.title) {
+            case 'Riskli Öğrenci':
+                setRiskyStudentsModalOpen(true);
+                break;
+            case 'Aktif Tezler':
+                setActiveThesesModalOpen(true);
+                break;
+            case 'Ort. Danışman Yükü':
+                setAdvisorWorkloadModalOpen(true);
+                break;
+            default:
+                if (card.path) navigate(card.path);
+                break;
+        }
+    };
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cards.map((card, index) => (
-                <StatCard
-                    key={index}
-                    {...card}
-                    onClick={() => card.path && navigate(card.path)}
-                />
-            ))}
-        </div>
+        <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {cards.map((card, index) => (
+                    <StatCard
+                        key={index}
+                        {...card}
+                        onClick={() => handleCardClick(card)}
+                    />
+                ))}
+            </div>
+
+            {/* Modals */}
+            <DetailModal
+                isOpen={riskyStudentsModalOpen}
+                onClose={() => setRiskyStudentsModalOpen(false)}
+                title="Risk Analiz Raporu"
+                maxWidth="max-w-4xl"
+            >
+                <RiskyStudentsModal />
+            </DetailModal>
+
+            <DetailModal
+                isOpen={activeThesesModalOpen}
+                onClose={() => setActiveThesesModalOpen(false)}
+                title="Aktif Tezler Listesi"
+                maxWidth="max-w-4xl"
+            >
+                <ActiveThesesModal />
+            </DetailModal>
+
+            <DetailModal
+                isOpen={advisorWorkloadModalOpen}
+                onClose={() => setAdvisorWorkloadModalOpen(false)}
+                title="Danışman Yükü Detayı"
+                maxWidth="max-w-4xl"
+            >
+                <AdvisorWorkloadModal advisorId={null} />
+            </DetailModal>
+        </>
     );
 };
 

@@ -1,6 +1,7 @@
 const studentModel = require('../models/studentModel');
 const courseModel = require('../models/courseModel');
 const thesisModel = require('../models/thesisModel');
+const advisorModel = require('../models/advisorModel');
 
 const getRiskyStudentsAnalytics = async (req, res) => {
     try {
@@ -101,6 +102,64 @@ const getStudentsByStage = async (req, res) => {
     }
 };
 
+const getCourseRiskMetrics = async (req, res) => {
+    try {
+        const data = await courseModel.getCourseRiskMetrics();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching course risk metrics:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// ============================================
+// DETAY MODAL ENDPOINT'LERİ
+// ============================================
+
+const getRiskyStudentsDetail = async (req, res) => {
+    try {
+        const data = await studentModel.getRiskyStudentsDetail();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getAdvisorStudentsDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ error: 'Advisor ID is required' });
+        }
+        const data = await advisorModel.getAdvisorStudentsDetail(id);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getCourseFailureReport = async (req, res) => {
+    try {
+        const { code } = req.params;
+        if (!code) {
+            return res.status(400).json({ error: 'Course code is required' });
+        }
+        const data = await courseModel.getCourseFailureReport(code);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getActiveThesesDetail = async (req, res) => {
+    try {
+        const data = await thesisModel.getActiveThesesDetail();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getRiskyStudentsAnalytics, // Kept original as no definition for getRiskyStudentsList was provided
     getCourseAnalytics,        // Kept original as no definition for getCoursePerformanceAnalytics was provided
@@ -110,5 +169,10 @@ module.exports = {
     getAdvisorLoad,
     getFunnel,
     getCriticalAlarms,
-    getStudentsByStage
+    getStudentsByStage,
+    getCourseRiskMetrics,
+    getRiskyStudentsDetail,
+    getAdvisorStudentsDetail,
+    getCourseFailureReport,
+    getActiveThesesDetail
 };
