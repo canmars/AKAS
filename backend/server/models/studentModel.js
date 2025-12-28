@@ -197,6 +197,7 @@ const getStudentsList = async (filters = {}) => {
             program_id = null,
             risk_level = null,
             status = null,
+            stage = null,
             page = 1,
             limit = 20
         } = filters;
@@ -212,6 +213,7 @@ const getStudentsList = async (filters = {}) => {
                 ogrenci_no,
                 ad,
                 soyad,
+                kayit_tarihi,
                 program_turu_id,
                 gno,
                 aktif_mi,
@@ -284,6 +286,7 @@ const getStudentsList = async (filters = {}) => {
                 ad_soyad: `${student.ad} ${student.soyad}`,
                 ogrenci_no: student.ogrenci_no,
                 program: program?.program_adi || 'Bilinmiyor',
+                kayit_tarihi: student.kayit_tarihi,
                 gno: student.gno || 0,
                 risk_durumu: {
                     skor: riskData?.risk_skoru || 0,
@@ -291,14 +294,18 @@ const getStudentsList = async (filters = {}) => {
                 },
                 danisman: advisor ? `${advisor.unvan} ${advisor.ad} ${advisor.soyad}` : 'Atanmamış',
                 durum: durum,
+                guncel_asama: durum,
                 mevcut_yariyil: akademikDurum?.mevcut_yariyil || 1
             };
         });
 
-        // Filter by risk level after transformation (since it comes from related table)
+        // Filter by risk level and stage after transformation (since they come from related tables)
         let filteredData = transformedData;
         if (risk_level) {
-            filteredData = transformedData.filter(s => s.risk_durumu.seviye === risk_level);
+            filteredData = filteredData.filter(s => s.risk_durumu.seviye === risk_level);
+        }
+        if (stage) {
+            filteredData = filteredData.filter(s => s.guncel_asama === stage);
         }
 
         console.log('[DEBUG] Final response:', { dataCount: filteredData.length, totalCount: count });
@@ -332,7 +339,7 @@ const getStudentDetails = async (studentId) => {
             .select(`
                 *,
                 program_turleri (*),
-                akademik_personel!ogrenci_danisman_id_fkey (unvan, ad, soyad, eposta),
+                akademik_personel!ogrenci_danisman_id_fkey (unvan, ad, soyad, email),
                 ogrenci_risk_skorlari (*),
                 ogrenci_akademik_durum (*),
                 ogrenci_asamalari (*),
@@ -389,7 +396,7 @@ const getStudentDetails = async (studentId) => {
                 id: student.ogrenci_id,
                 ad_soyad: `${student.ad} ${student.soyad}`,
                 ogrenci_no: student.ogrenci_no,
-                eposta: student.eposta,
+                eposta: student.email || student.kurumsal_email,
                 telefon: student.telefon,
                 program: student.program_turleri,
                 kayit_tarihi: student.kayit_tarihi,
@@ -402,7 +409,7 @@ const getStudentDetails = async (studentId) => {
             // Danışman
             danisman: student.akademik_personel ? {
                 ad_soyad: `${student.akademik_personel.unvan} ${student.akademik_personel.ad} ${student.akademik_personel.soyad}`,
-                eposta: student.akademik_personel.eposta
+                eposta: student.akademik_personel.email
             } : null,
 
             // Risk Analizi
@@ -413,7 +420,7 @@ const getStudentDetails = async (studentId) => {
                 ders_tamamlandi_mi: student.ogrenci_akademik_durum?.[0]?.ders_tamamlandi_mi || false,
                 toplam_kredi: student.ogrenci_akademik_durum?.[0]?.toplam_kredi || 0,
                 alinan_dersler: courses || [],
-                basarisiz_dersler: (courses || []).filter(c => c.harf_notu === 'FF' || c.harf_notu === 'FD')
+                basarisiz_dersler: (courses || []).filter(c => c.not_kodu === 'FF' || c.not_kodu === 'FD')
             },
 
             // Süreç Takibi (Program Türüne Göre)
@@ -437,6 +444,326 @@ const getStudentDetails = async (studentId) => {
     }
 };
 
+/**
+ * Öğrenci Analizi İstatistikleri
+ * @returns {Object} - { toplam_ogrenci, tez_asamasinda, izlenmesi_gereken, yuksek_riskli, gecen_donem_artis }
+ */
+const getStudentAnalysisStats = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_student_analysis_stats');
+        if (error) throw error;
+        return data?.[0] || {
+            toplam_ogrenci: 0,
+            tez_asamasinda: 0,
+            izlenmesi_gereken: 0,
+            yuksek_riskli: 0,
+            gecen_donem_artis: 0
+        };
+    } catch (error) {
+        console.error("Error fetching student analysis stats:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Program Listesi
+ * @returns {Array} - Program listesi
+ */
+const getProgramsList = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('program_turleri')
+            .select('program_turu_id, program_adi, program_kodu')
+            .eq('aktif_mi', true)
+            .order('program_adi');
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching programs list:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Aşama Listesi (Durum Türleri)
+ * @returns {Array} - Aşama listesi
+ */
+const getStagesList = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('durum_turleri')
+            .select('durum_id, durum_adi, durum_kodu')
+            .order('sira_no');
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching stages list:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Tüm Öğrenciler Detayı
+ * @param {Object} params - { page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getAllStudentsDetail = async (params = {}) => {
+    try {
+        const { page = 1, limit = 20 } = params;
+        const { data, error } = await supabase.rpc('get_all_students_detail', {
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching all students detail:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Tez Aşamasındaki Öğrenciler Detayı
+ * @param {Object} params - { page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getThesisStageStudentsDetail = async (params = {}) => {
+    try {
+        const { page = 1, limit = 20 } = params;
+        const { data, error } = await supabase.rpc('get_thesis_stage_students_detail', {
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching thesis stage students detail:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * İzlenmesi Gereken Öğrenciler Detayı
+ * @param {Object} params - { page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getMonitoringStudentsDetail = async (params = {}) => {
+    try {
+        const { page = 1, limit = 20 } = params;
+        const { data, error } = await supabase.rpc('get_monitoring_students_detail', {
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching monitoring students detail:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Yüksek Riskli Öğrenciler Detayı
+ * @param {Object} params - { page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getHighRiskStudentsDetail = async (params = {}) => {
+    try {
+        const { page = 1, limit = 20 } = params;
+        const { data, error } = await supabase.rpc('get_high_risk_students_detail', {
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching high risk students detail:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Öğrenci Analizi KPI'ları V2 (Yeni KPI'lar)
+ * @returns {Object} - KPI verileri
+ */
+const getStudentAnalysisKPIsV2 = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_student_analysis_kpis_v2', {});
+        if (error) throw error;
+        return data?.[0] || {
+            toplam_aktif_ogrenci: 0,
+            toplam_aktif_ogrenci_artis: 0,
+            tez_asamasinda_ogrenci: 0,
+            danisman_bekleyen_ogrenci: 0,
+            kritik_riskli_ogrenci: 0,
+            kritik_riskli_artis: 0
+        };
+    } catch (error) {
+        console.error("Error fetching student analysis KPIs V2:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Program Dağılımı
+ * @returns {Array} - Program dağılım verileri
+ */
+const getProgramDistribution = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_student_program_distribution', {});
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching program distribution:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Aşama Dağılımı
+ * @returns {Array} - Aşama dağılım verileri
+ */
+const getStageDistribution = async () => {
+    try {
+        const { data, error } = await supabase.rpc('get_student_stage_distribution', {});
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching stage distribution:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Program Dağılımı Detayı
+ * @param {Object} params - { program_tipi, page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getProgramDistributionDetail = async (params = {}) => {
+    try {
+        const { program_tipi, page = 1, limit = 20 } = params;
+        if (!program_tipi) {
+            throw new Error('program_tipi is required');
+        }
+
+        const { data, error } = await supabase.rpc('get_program_distribution_detail', {
+            program_tipi: program_tipi,
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching program distribution detail:", error.message);
+        throw error;
+    }
+};
+
+/**
+ * Aşama Dağılımı Detayı
+ * @param {Object} params - { durum_kodu, page, limit }
+ * @returns {Object} - { data: [], meta: { total, page, limit, totalPages } }
+ */
+const getStageDistributionDetail = async (params = {}) => {
+    try {
+        const { durum_kodu, page = 1, limit = 20 } = params;
+        if (!durum_kodu) {
+            throw new Error('durum_kodu is required');
+        }
+
+        const { data, error } = await supabase.rpc('get_stage_distribution_detail', {
+            durum_kodu: durum_kodu,
+            page_num: page,
+            page_size: limit
+        });
+
+        if (error) throw error;
+
+        const total = data?.[0]?.total_count || 0;
+        const students = data || [];
+
+        return {
+            data: students,
+            meta: {
+                total: total,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching stage distribution detail:", error.message);
+        throw error;
+    }
+};
+
 module.exports = {
     getRiskyStudents,
     getRiskDistribution,
@@ -450,5 +777,19 @@ module.exports = {
     getRiskyStudentsDetail,
     // Yeni API'ler
     getStudentsList,
-    getStudentDetails
+    getStudentDetails,
+    getStudentAnalysisStats,
+    getProgramsList,
+    getStagesList,
+    // İstatistik detay fonksiyonları
+    getAllStudentsDetail,
+    getThesisStageStudentsDetail,
+    getMonitoringStudentsDetail,
+    getHighRiskStudentsDetail,
+    // V2 API'ler
+    getStudentAnalysisKPIsV2,
+    getProgramDistribution,
+    getStageDistribution,
+    getProgramDistributionDetail,
+    getStageDistributionDetail
 };

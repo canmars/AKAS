@@ -15,6 +15,72 @@ const getCoursePerformance = async () => {
     }
 };
 
+const getCourseAnalysisKPIs = async (yil, donem) => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_analysis_kpis', {
+            p_yil: parseInt(yil),
+            p_donem: donem
+        });
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getCourseGradeDistribution = async (yil, donem) => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_grade_distribution_chart', {
+            p_yil: parseInt(yil),
+            p_donem: donem
+        });
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getMostRepeatedCourses = async (yil, donem) => {
+    try {
+        const { data, error } = await supabase.rpc('get_most_repeated_courses', {
+            p_yil: parseInt(yil),
+            p_donem: donem
+        });
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getCourseSuccessDetails = async (yil, donem) => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_success_details', {
+            p_yil: parseInt(yil),
+            p_donem: donem
+        });
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getCourseStudents = async (courseCode, yil, donem) => {
+    try {
+        const { data, error } = await supabase.rpc('get_course_detail_students', {
+            p_ders_kodu: courseCode,
+            p_yil: parseInt(yil),
+            p_donem: donem
+        });
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        throw error;
+    }
+};
+
 const getCourseRiskMetrics = async () => {
     try {
         const { data, error } = await supabase.rpc('get_course_risk_metrics');
@@ -48,4 +114,9 @@ module.exports = {
     getCoursePerformance,
     getCourseRiskMetrics,
     getCourseFailureReport,
+    getCourseAnalysisKPIs,
+    getCourseGradeDistribution,
+    getMostRepeatedCourses,
+    getCourseSuccessDetails,
+    getCourseStudents
 };

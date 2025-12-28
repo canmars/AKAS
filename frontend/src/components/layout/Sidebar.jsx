@@ -41,11 +41,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             name: 'Ders Analizi',
             path: '/course-analysis',
             icon: BookOpen,
-        },
-        {
-            name: 'Raporlar',
-            path: '/reports',
-            icon: BarChart3,
         }
     ];
 
@@ -89,7 +84,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 <BookOpen className="w-8 h-8 text-white" strokeWidth={2.5} />
                             </div>
                         </div>
-                        <h1 className="text-center text-sm font-bold text-gray-900">DEÜ YBS</h1>
+                        <h1 className="text-center text-sm font-bold text-gray-900">AKAS</h1>
                         <p className="text-center text-xs text-gray-500">Akademik Takip Sistemi</p>
                     </div>
 
@@ -107,8 +102,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     className={`
                                         flex items-center gap-3 px-4 py-3 rounded-xl
                                         transition-all duration-200 font-medium text-sm
-                                        ${active 
-                                            ? 'bg-blue-50 text-blue-700' 
+                                        ${active
+                                            ? 'bg-blue-50 text-blue-700'
                                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }
                                     `}
@@ -122,19 +117,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
                     {/* Bottom Section */}
                     <div className="border-t border-gray-100">
-                        {/* Hızlı Erişim Bölümü */}
-                        <div className="p-4 bg-gray-50">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
-                                Hızlı Erişim
-                            </p>
-                            <p className="text-xs text-gray-500 mb-3">
-                                Öğrenci raporları ve analiz araçlarına kolay erişim
-                            </p>
-                            <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 rounded-xl font-semibold text-sm hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                                <Sparkles className="w-4 h-4" />
-                                Raporları Aç
-                            </button>
-                        </div>
+
 
                         {/* Action Buttons */}
                         <div className="p-4 space-y-2">
