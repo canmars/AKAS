@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout';
 import CourseAnalysis from './pages/CourseAnalysis';
 import Students from './pages/Students';
 import Simulation from './pages/Simulation';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                                 <Route path="/academic-staff" element={<AcademicStaff />} />
                                 <Route path="/students" element={<Students />} />
                                 <Route path="/simulation" element={<Simulation />} />
+                                <Route path="/settings" element={<Settings />} />
                             </Routes>
                         </Layout>
                     </ProtectedRoute>
