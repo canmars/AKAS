@@ -7,28 +7,55 @@ import {
     Tooltip as ChartTooltip,
     Legend as ChartLegend
 } from 'chart.js';
-
-ChartJS.register(ArcElement, ChartTooltip, ChartLegend);
-
 import { useNavigate } from 'react-router-dom';
 
-// ... (existing imports)
+ChartJS.register(ArcElement, ChartTooltip, ChartLegend);
 
 const RiskDistribution = () => {
     const [stats, setStats] = useState({ high: 0, medium: 0, low: 0, total: 0 });
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // ... (useEffect and data processing)
+    useEffect(() => {
+        const fetchRiskData = async () => {
+            try {
+                const data = await api.get('/dashboard/risk-distribution');
+                setStats(data || { high: 0, medium: 0, low: 0, total: 0 });
+            } catch (error) {
+                console.error("Error fetching risk data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRiskData();
+    }, []);
+
+    const total = stats.total || (stats.high + stats.medium + stats.low);
+    const calculatePercentage = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
+
+    const data = {
+        labels: ['Yüksek', 'Orta', 'Düşük'],
+        datasets: [
+            {
+                data: [stats.high, stats.medium, stats.low],
+                backgroundColor: [
+                    '#EF4444', // Red (Yüksek)
+                    '#F59E0B', // Orange/Amber (Orta)
+                    '#10B981', // Green (Düşük)
+                ],
+                borderWidth: 0,
+                cutout: '70%', // Thinner donut as per design
+                hoverOffset: 4
+            },
+        ],
+    };
 
     const handleChartClick = (event, elements) => {
         // Navigate to student analysis on click
         navigate('/student-analysis');
     };
 
-    // ... (chart data and options setup)
-
-    // Add onClick to options
     const options = {
         responsive: true,
         maintainAspectRatio: false,
@@ -55,7 +82,17 @@ const RiskDistribution = () => {
         }
     };
 
-    // ... (rest of component)
+    const riskLevels = [
+        { label: 'Düşük', percentage: `${calculatePercentage(stats.low)}%`, color: 'text-emerald-500', dotColor: 'bg-emerald-500' },
+        { label: 'Orta', percentage: `${calculatePercentage(stats.medium)}%`, color: 'text-amber-500', dotColor: 'bg-amber-500' },
+        { label: 'Yüksek', percentage: `${calculatePercentage(stats.high)}%`, color: 'text-red-500', dotColor: 'bg-red-500' },
+    ];
+
+    if (loading) return (
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+    );
 
     return (
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col">
