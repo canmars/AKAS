@@ -16,45 +16,64 @@ import DetailModal from '../common/DetailModal';
 import AdvisorWorkloadModal from './modals/AdvisorWorkloadModal';
 import InfoTooltip from '../common/InfoTooltip';
 
-// Özel Tooltip Bileşeni
+// Özel Tooltip Bileşeni - V4 Detaylı Versiyonu
 const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload || payload.length === 0) return null;
 
     const data = payload[0].payload;
-    const tezliToplam = (data.tezli_ders_sayisi || 0) + (data.tezli_tez_sayisi || 0);
-    const tezliKota = 14;
+    const tezliToplam = (data.tezli_ders || 0) + (data.tezli_tez || 0);
+    const tezsizToplam = (data.tezsiz_uzaktan || 0) + (data.tezsiz_io || 0);
 
     return (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-lg p-4 min-w-[220px]">
-            <div className="font-semibold text-slate-800 mb-3 text-sm border-b border-slate-100 pb-2 font-sans">
-                {data.ad_soyad}
+        <div className="bg-white border-2 border-slate-300 rounded-xl shadow-2xl p-4 min-w-[280px] font-sans">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-3 pb-3 border-b-2 border-slate-200">
+                <span className="text-lg">👤</span>
+                <div className="font-bold text-slate-900 text-sm">
+                    {data.ad_soyad}
+                </div>
             </div>
             
-            <div className="space-y-2 text-xs font-sans">
-                <div className="flex items-center gap-2">
-                    <span className="text-red-500 font-bold">🔴</span>
-                    <span className="text-slate-600">Tez Aşaması:</span>
-                    <span className="font-bold text-slate-800">{data.tezli_tez_sayisi || 0} Öğrenci</span>
+            {/* Tezli Yükü */}
+            <div className="mb-3 bg-blue-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-blue-900">📚 TEZLİ YÜKÜ</span>
+                    <span className={`text-xs font-bold ${tezliToplam > 14 ? 'text-red-600' : 'text-blue-900'}`}>
+                        {tezliToplam} / 14 (Kota)
+                    </span>
                 </div>
-                
-                <div className="flex items-center gap-2">
-                    <span className="text-blue-500 font-bold">🔵</span>
-                    <span className="text-slate-600">Ders Aşaması:</span>
-                    <span className="font-bold text-slate-800">{data.tezli_ders_sayisi || 0} Öğrenci</span>
+                <div className="space-y-1 pl-2">
+                    <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded bg-[#EF4444]"></div>
+                        <span className="text-slate-600">Tez Aşaması:</span>
+                        <span className="font-bold text-slate-800">{data.tezli_tez || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded bg-[#3B82F6]"></div>
+                        <span className="text-slate-600">Ders Aşaması:</span>
+                        <span className="font-bold text-slate-800">{data.tezli_ders || 0}</span>
+                    </div>
                 </div>
-                
-                <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-bold">⚪</span>
-                    <span className="text-slate-600">Tezsiz:</span>
-                    <span className="font-bold text-slate-800">{data.tezsiz_sayisi || 0} Öğrenci</span>
+            </div>
+
+            {/* Tezsiz Yükü */}
+            <div className="bg-slate-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700">🎓 TEZSİZ YÜKÜ</span>
+                    <span className={`text-xs font-bold ${tezsizToplam > 16 ? 'text-red-600' : 'text-slate-700'}`}>
+                        {tezsizToplam} / 16 (Kota)
+                    </span>
                 </div>
-                
-                <div className="border-t border-slate-100 pt-2 mt-2">
-                    <div className="flex items-center gap-2">
-                        <span className="text-slate-600">📊 Toplam Tezli Yükü:</span>
-                        <span className={`font-bold ${tezliToplam > tezliKota ? 'text-red-500' : 'text-slate-800'}`}>
-                            {tezliToplam} / {tezliKota}
-                        </span>
+                <div className="space-y-1 pl-2">
+                    <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded bg-[#E5E7EB]"></div>
+                        <span className="text-slate-600">Uzaktan Öğr:</span>
+                        <span className="font-bold text-slate-800">{data.tezsiz_uzaktan || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-3 rounded bg-[#9CA3AF]"></div>
+                        <span className="text-slate-600">İkinci Öğr:</span>
+                        <span className="font-bold text-slate-800">{data.tezsiz_io || 0}</span>
                     </div>
                 </div>
             </div>
@@ -62,11 +81,11 @@ const CustomTooltip = ({ active, payload }) => {
     );
 };
 
-// Özel YAxis Label (Hoca isimlerini renklendirmek için)
+// Özel YAxis Label (Hoca isimlerini renklendirmek için) - V4
 const CustomYAxisTick = ({ x, y, payload, chartData }) => {
     // payload.value hoca ismini içerir, chartData'dan eşleştir
     const advisorData = chartData?.find(item => item.ad_soyad === payload.value);
-    const tezliToplam = advisorData ? (advisorData.tezli_ders_sayisi || 0) + (advisorData.tezli_tez_sayisi || 0) : 0;
+    const tezliToplam = advisorData ? advisorData.tezli_toplam : 0;
     const isOverQuota = tezliToplam > 14;
 
     return (
@@ -77,7 +96,7 @@ const CustomYAxisTick = ({ x, y, payload, chartData }) => {
                 dy={4}
                 textAnchor="end"
                 fill={isOverQuota ? '#EF4444' : '#475569'}
-                fontSize={11}
+                fontSize={12}
                 fontWeight={isOverQuota ? 'bold' : 500}
                 fontFamily="Inter, sans-serif"
             >
@@ -117,22 +136,30 @@ const AdvisorWorkload = () => {
         fetchAdvisors();
     }, []);
 
-    // Veri transformasyonu: Backend format -> Chart format
+    // Veri transformasyonu: Backend format (V4) -> Chart format
     const chartData = useMemo(() => {
         return advisors.map(advisor => {
-            const tezli = advisor.tezli_durum || {};
-            const tezsiz = advisor.tezsiz_durum || {};
+            const tezliData = advisor.tezli_data || {};
+            const tezsizData = advisor.tezsiz_data || {};
+            const tezliDetay = tezliData.detay || {};
+            const tezsizDetay = tezsizData.detay || {};
             
             return {
+                personel_id: advisor.personel_id,
                 ad_soyad: advisor.ad_soyad || '',
                 unvan: advisor.unvan || '',
-                tezsiz_sayisi: tezsiz.toplam_dolu || 0,
-                tezli_ders_sayisi: tezli.detay?.ders_asamasi || 0,
-                tezli_tez_sayisi: tezli.detay?.tez_asamasi || 0,
-                tezli_toplam: (tezli.detay?.ders_asamasi || 0) + (tezli.detay?.tez_asamasi || 0),
-                tezli_kota: tezli.kota || 14
+                // Tezsiz kategorileri (Solda - Gri Tonları)
+                tezsiz_io: tezsizDetay.io || 0,           // Koyu Gri
+                tezsiz_uzaktan: tezsizDetay.uzaktan || 0, // Açık Gri
+                // Tezli kategorileri (Sağda - Renkli)
+                tezli_ders: tezliDetay.ders || 0,         // Mavi
+                tezli_tez: tezliDetay.tez || 0,           // Kırmızı
+                // Toplamlar
+                tezli_toplam: tezliData.dolu || 0,
+                tezsiz_toplam: tezsizData.dolu || 0,
+                toplam_ogrenci: advisor.toplam_ogrenci || 0
             };
-        }).sort((a, b) => b.tezli_toplam - a.tezli_toplam); // Tezli toplamına göre sırala
+        }).sort((a, b) => b.toplam_ogrenci - a.toplam_ogrenci); // Toplam öğrenci sayısına göre sırala
     }, [advisors]);
 
     if (loading) {
@@ -161,20 +188,23 @@ const AdvisorWorkload = () => {
                         <h2 className="text-lg font-bold text-gray-900">Danışman Yük Dağılımı</h2>
                         <div className="relative z-[100]">
                             <InfoTooltip
-                                title="Yük ve Kota Hesaplama Yöntemi"
+                                title="HESAPLAMA MANTIĞI"
                                 content={[
                                     {
-                                        type: 'list',
-                                        items: [
-                                            "Akademik Filtre: Sadece 'Prof. Dr.', 'Doç. Dr.' ve 'Dr. Öğr. Üyesi' unvanları listelenir. (Arş. Gör. hariç tutulmuştur).",
-                                            "🔴 Tezli (Tez Aşaması): Derslerini bitirmiş, tez yazan öğrenciler (Yüksek İş Yükü).",
-                                            "🔵 Tezli (Ders Aşaması): Henüz ders alan öğrenciler.",
-                                            "⚪ Tezsiz: Proje bazlı öğrenciler (Düşük İş Yükü)."
-                                        ]
+                                        type: 'bold',
+                                        text: "• Tezli Kotası (14): Sadece 'Mavi' (Ders) ve 'Kırmızı' (Tez) barlar bu kotaya sayılır."
                                     },
                                     {
                                         type: 'bold',
-                                        text: "Kota Çizgisi: Tezli Programlar yönetmeliğine göre belirlenen 14 Öğrenci sınırını temsil eder. Tezsiz öğrenciler bu kotaya dahil edilmez."
+                                        text: "• Tezsiz Kotası (16): 'Açık Gri' (Uzaktan) ve 'Koyu Gri' (İÖ) barlar bu kotaya dahildir."
+                                    },
+                                    {
+                                        type: 'paragraph',
+                                        text: "• Unvan Filtresi: Sadece Öğretim Üyeleri (Prof., Doç., Dr. Öğr. Üyesi) gösterilmektedir."
+                                    },
+                                    {
+                                        type: 'paragraph',
+                                        text: "• Uzaktan/İÖ Ayrımı: Program adındaki (Uzaktan Öğretim / İkinci Öğretim) ibaresine göre otomatik yapılmıştır."
                                     }
                                 ]}
                                 position="bottom"
@@ -193,14 +223,13 @@ const AdvisorWorkload = () => {
                     <BarChart
                         data={chartData}
                         layout="vertical"
-                        margin={{ top: 15, right: 20, left: 150, bottom: 50 }}
-                        barCategoryGap="10%"
+                        margin={{ top: 30, right: 45, left: 160, bottom: 40 }}
+                        barCategoryGap="8%"
                         onClick={(data) => {
                             if (data && data.activePayload && data.activePayload[0]) {
                                 const payload = data.activePayload[0].payload;
-                                const advisor = advisors.find(a => a.ad_soyad === payload.ad_soyad);
-                                if (advisor) {
-                                    setSelectedAdvisorId(advisor.personel_id);
+                                if (payload.personel_id) {
+                                    setSelectedAdvisorId(payload.personel_id);
                                     setModalOpen(true);
                                 }
                             }
@@ -208,18 +237,19 @@ const AdvisorWorkload = () => {
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" opacity={0.5} />
                         
-                        {/* X Ekseni: Öğrenci Sayısı (0-18) */}
+                        {/* X Ekseni: Öğrenci Sayısı (0-25, 2'şer artışla) */}
                         <XAxis
                             type="number"
-                            domain={[0, 18]}
-                            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'Inter, sans-serif' }}
+                            domain={[0, 25]}
+                            ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]}
+                            tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Inter, sans-serif' }}
                             tickFormatter={(value) => value.toString()}
                             allowDecimals={false}
                             label={{ 
                                 value: 'Öğrenci Sayısı', 
                                 position: 'insideBottom', 
-                                offset: -5,
-                                style: { fill: '#64748B', fontSize: 11, fontFamily: 'Inter, sans-serif', fontWeight: 500 }
+                                offset: -3,
+                                style: { fill: '#64748B', fontSize: 12, fontFamily: 'Inter, sans-serif', fontWeight: 500 }
                             }}
                         />
                         
@@ -227,26 +257,51 @@ const AdvisorWorkload = () => {
                         <YAxis
                             type="category"
                             dataKey="ad_soyad"
-                            width={145}
+                            width={155}
                             tick={(props) => <CustomYAxisTick {...props} chartData={chartData} />}
                             tickLine={false}
                             interval={0}
                         />
                         
-                        {/* Referans Çizgisi: X=14 (Tezli Kotası) */}
+                        {/* Referans Çizgisi 1: X=14 (Tezli Kotası) */}
                         <ReferenceLine
                             x={14}
-                            stroke="#EF4444"
+                            stroke="#3B82F6"
                             strokeWidth={2.5}
                             strokeDasharray="6 4"
                             label={{
-                                value: "Kota: 14",
+                                value: "Tezli Kota: 14",
                                 position: "top",
-                                fill: "#EF4444",
-                                fontSize: 9,
+                                fill: "#3B82F6",
+                                fontSize: 11,
                                 fontWeight: 700,
                                 fontFamily: "Inter, sans-serif",
-                                offset: 3
+                                offset: 10
+                            }}
+                            isFront={true}
+                        />
+                        
+                        {/* Referans Çizgisi 2: X=16 (Tezsiz Kotası) */}
+                        <ReferenceLine
+                            x={16}
+                            stroke="#9CA3AF"
+                            strokeWidth={2.5}
+                            strokeDasharray="6 4"
+                            label={({ viewBox }) => {
+                                const { x, y, height } = viewBox;
+                                return (
+                                    <text
+                                        x={x}
+                                        y={y + height - 8}
+                                        fill="#9CA3AF"
+                                        fontSize={11}
+                                        fontWeight={700}
+                                        fontFamily="Inter, sans-serif"
+                                        textAnchor="middle"
+                                    >
+                                        Tezsiz Kota: 16
+                                    </text>
+                                );
                             }}
                             isFront={true}
                         />
@@ -254,54 +309,91 @@ const AdvisorWorkload = () => {
                         {/* Tooltip */}
                         <Tooltip content={<CustomTooltip />} />
                         
-                        {/* Stacked Bars */}
-                        {/* 1. Tezsiz (En Dip) - Gri */}
+                        {/* Stacked Bars - V4 Detaylı (4 Kategori) */}
+                        {/* Soldan Sağa Sıralama: İÖ > Uzaktan > Ders > Tez */}
+                        
+                        {/* 1. Tezsiz İkinci Öğretim (En Sol) - Koyu Gri */}
                         <Bar
-                            dataKey="tezsiz_sayisi"
+                            dataKey="tezsiz_io"
+                            stackId="a"
+                            fill="#9CA3AF"
+                            name="Tezsiz (İÖ)"
+                            radius={[0, 0, 0, 0]}
+                            barSize={32}
+                        />
+                        
+                        {/* 2. Tezsiz Uzaktan - Açık Gri */}
+                        <Bar
+                            dataKey="tezsiz_uzaktan"
                             stackId="a"
                             fill="#E5E7EB"
-                            name="Tezsiz YL"
-                            radius={[0, 6, 6, 0]}
+                            name="Tezsiz (Uzaktan)"
+                            radius={[0, 0, 0, 0]}
+                            barSize={32}
                         />
                         
-                        {/* 2. Tezli Ders (Orta) - Mavi */}
+                        {/* 3. Tezli Ders Aşaması - Mavi */}
                         <Bar
-                            dataKey="tezli_ders_sayisi"
+                            dataKey="tezli_ders"
                             stackId="a"
                             fill="#3B82F6"
-                            name="Tezli (Ders Aşaması)"
+                            name="Tezli (Ders)"
                             radius={[0, 0, 0, 0]}
+                            barSize={32}
                         />
                         
-                        {/* 3. Tezli Tez (En Üst) - Kırmızı */}
+                        {/* 4. Tezli Tez Aşaması (En Sağ) - Kırmızı */}
                         <Bar
-                            dataKey="tezli_tez_sayisi"
+                            dataKey="tezli_tez"
                             stackId="a"
                             fill="#EF4444"
-                            name="Tezli (Tez Aşaması)"
-                            radius={[6, 0, 0, 6]}
+                            name="Tezli (Tez)"
+                            radius={[0, 6, 6, 0]}
+                            barSize={32}
                         />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
 
-            {/* Legend */}
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-center gap-6 shrink-0 flex-wrap">
-                <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-[#E5E7EB]"></div>
-                    <span className="text-xs text-slate-600 font-medium">Tezsiz YL</span>
+            {/* Legend - V4 Detaylı */}
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-center gap-4 shrink-0 flex-wrap text-xs">
+                {/* Tezsiz Grubu */}
+                <div className="flex items-center gap-3 px-3 py-1 bg-slate-50 rounded-lg">
+                    <span className="text-slate-500 font-semibold text-[10px]">TEZSİZ:</span>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-[#9CA3AF]"></div>
+                        <span className="text-slate-600 font-medium">İÖ</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-[#E5E7EB]"></div>
+                        <span className="text-slate-600 font-medium">Uzaktan</span>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-[#3B82F6]"></div>
-                    <span className="text-xs text-slate-600 font-medium">Tezli (Ders)</span>
+                
+                {/* Tezli Grubu */}
+                <div className="flex items-center gap-3 px-3 py-1 bg-blue-50 rounded-lg">
+                    <span className="text-blue-700 font-semibold text-[10px]">TEZLİ:</span>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-[#3B82F6]"></div>
+                        <span className="text-slate-600 font-medium">Ders</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded bg-[#EF4444]"></div>
+                        <span className="text-slate-600 font-medium">Tez</span>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-[#EF4444]"></div>
-                    <span className="text-xs text-slate-600 font-medium">Tezli (Tez)</span>
-                </div>
-                <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
-                    <div className="w-4 h-2 border-t-2 border-b-2 border-dashed border-[#EF4444]"></div>
-                    <span className="text-xs text-slate-600 font-medium">Kota (14)</span>
+                
+                {/* Kota Çizgileri */}
+                <div className="flex items-center gap-3 px-3 py-1 bg-slate-50 rounded-lg border border-slate-200">
+                    <span className="text-slate-500 font-semibold text-[10px]">KOTA:</span>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-2 border-t-2 border-b-2 border-dashed border-[#3B82F6]"></div>
+                        <span className="text-blue-700 font-semibold text-[10px]">14 (Tezli)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-2 border-t-2 border-b-2 border-dashed border-[#9CA3AF]"></div>
+                        <span className="text-slate-600 font-semibold text-[10px]">16 (Tezsiz)</span>
+                    </div>
                 </div>
             </div>
 
