@@ -5,6 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const advisorRouter = require('./routers/advisorRouter');
 const dashboardRouter = require('./routers/dashboardRouter');
+const studentRouter = require('./routers/studentRouter');
 const authRouter = require('./routers/authRoutes');
 const testRouter = require('./routers/testRoutes');
 
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/advisors', advisorRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/students', studentRouter);
 app.use('/api/test', testRouter); // Test routes for auth & RBAC
 
 app.get('/', (req, res) => {

@@ -17,8 +17,24 @@ const getAuthHeaders = () => {
 };
 
 const api = {
-  get: async (endpoint) => {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+  get: async (endpoint, options = {}) => {
+    let url = `${BASE_URL}${endpoint}`;
+
+    // Build query string from params
+    if (options.params) {
+      const queryParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, value);
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });

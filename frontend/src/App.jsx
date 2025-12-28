@@ -6,6 +6,7 @@ import AcademicStaff from './pages/AcademicStaff';
 import Layout from './components/layout/Layout';
 import CourseAnalysis from './pages/CourseAnalysis';
 import Students from './pages/Students';
+import StudentAnalysis from './pages/StudentAnalysis';
 import Simulation from './pages/Simulation';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,7 +25,7 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Dashboard />} />
                                 <Route path="/dashboard" element={<Dashboard />} />
-                                <Route path="/student-analysis" element={<Students />} />
+                                <Route path="/student-analysis" element={<StudentAnalysis />} />
                                 <Route path="/advisor-analysis" element={<AcademicStaff />} />
                                 <Route path="/course-analysis" element={<CourseAnalysis />} />
                                 <Route path="/my-students" element={<Students />} />
