@@ -173,6 +173,21 @@ const getCriticalAlarms = async () => {
     }
 };
 
+const getStudentsByStage = async (stageName) => {
+    try {
+        // Aşama adına göre öğrencileri getir
+        const { data, error } = await supabase.rpc('get_students_by_stage', {
+            stage_name: stageName
+        });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error("Error fetching students by stage:", error.message);
+        return [];
+    }
+};
+
 module.exports = {
     getRiskyStudents,
     getRiskDistribution,
@@ -181,5 +196,6 @@ module.exports = {
     getFunnelMetrics,
     getDashboardKPIsV2,
     getFunnelStatsV2,
-    getCriticalAlarms
+    getCriticalAlarms,
+    getStudentsByStage
 };

@@ -85,6 +85,22 @@ const getCriticalAlarms = async (req, res) => {
     }
 };
 
+const getStudentsByStage = async (req, res) => {
+    try {
+        const { stage } = req.query;
+
+        if (!stage) {
+            return res.status(400).json({ error: 'Stage parameter is required' });
+        }
+
+        const data = await studentModel.getStudentsByStage(stage);
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching students by stage:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getRiskyStudentsAnalytics, // Kept original as no definition for getRiskyStudentsList was provided
     getCourseAnalytics,        // Kept original as no definition for getCoursePerformanceAnalytics was provided
@@ -93,5 +109,6 @@ module.exports = {
     getKPIs,
     getAdvisorLoad,
     getFunnel,
-    getCriticalAlarms
+    getCriticalAlarms,
+    getStudentsByStage
 };

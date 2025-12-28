@@ -63,6 +63,13 @@ router.get('/course-performance',
     dashboardController.getCourseAnalytics
 );
 
+// Funnel aşamasına göre öğrenci listesi
+router.get('/funnel/students',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getStudentsByStage
+);
+
 // ============================================
 // HEM BAŞKAN HEM DANIŞMAN ERİŞEBİLİR
 // ============================================
