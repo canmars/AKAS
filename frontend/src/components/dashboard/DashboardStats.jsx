@@ -2,143 +2,154 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Bar } from 'react-chartjs-2';
 import {
+    Users,
+    AlertTriangle,
+    BookOpen,
+    Scale
+} from 'lucide-react';
+import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
-    Title,
     Tooltip,
-    Legend
 } from 'chart.js';
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    Title,
-    Tooltip,
-    Legend
+    Tooltip
 );
 
-const StatCard = ({ title, value, trend, trendValue, icon, chartData, colorClass }) => {
-    const options = {
+import { useNavigate } from 'react-router-dom';
+
+const StatCard = ({ title, value, trend, trendDirection, trendLabel, icon: Icon, colorClass, chartData, isChartCard, onClick }) => {
+
+    // Bar Chart Implementation for Active Theses
+    const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
-            tooltip: { enabled: false }
+            tooltip: { enabled: false } // Minimalist look
         },
         scales: {
             x: { display: false },
-            y: { display: false, min: 0 }
+            y: { display: false }
         }
     };
 
-    const data = {
-        labels: ['', '', '', '', '', '', ''],
+    const chartDataConfig = {
+        labels: chartData ? chartData.map((_, i) => i) : [],
         datasets: [
             {
-                data: chartData,
-                backgroundColor: colorClass === 'blue' ? 'rgba(59, 130, 246, 0.5)' :
-                    colorClass === 'red' ? 'rgba(239, 68, 68, 0.5)' :
-                        'rgba(148, 163, 184, 0.5)',
+                data: chartData || [],
+                backgroundColor: 'rgba(168, 85, 247, 0.3)', // Purple-300 transparent
+                hoverBackgroundColor: 'rgba(168, 85, 247, 1)', // Purple-500
                 borderRadius: 4,
-                hoverBackgroundColor: colorClass === 'blue' ? 'rgba(59, 130, 246, 1)' :
-                    colorClass === 'red' ? 'rgba(239, 68, 68, 1)' :
-                        'rgba(148, 163, 184, 1)',
+                barThickness: 8,
             }
         ]
     };
 
-    // Special handling for the last bar color in the image
-    const lastBarColor = colorClass === 'blue' ? 'rgba(59, 130, 246, 1)' :
-        colorClass === 'red' ? 'rgba(239, 68, 68, 1)' :
-            'rgba(71, 85, 105, 1)';
+    // Highlight last bar
+    if (chartData && chartData.length > 0) {
+        const colors = chartData.map((_, i) =>
+            i === chartData.length - 1 ? 'rgba(168, 85, 247, 1)' : 'rgba(168, 85, 247, 0.3)'
+        );
+        chartDataConfig.datasets[0].backgroundColor = colors;
+    }
 
-    data.datasets[0].backgroundColor = (context) => {
-        const index = context.dataIndex;
-        return index === 6 ? lastBarColor : data.datasets[0].backgroundColor;
+    // Color Configurations
+    const colors = {
+        blue: { bg: 'bg-blue-50', text: 'text-blue-600', iconBg: 'bg-blue-100' },
+        red: { bg: 'bg-red-50', text: 'text-red-600', iconBg: 'bg-red-100' },
+        purple: { bg: 'bg-purple-50', text: 'text-purple-600', iconBg: 'bg-purple-100' },
+        orange: { bg: 'bg-orange-50', text: 'text-orange-600', iconBg: 'bg-orange-100' },
     };
 
+    const theme = colors[colorClass] || colors.blue;
+
     return (
-        <div className="ads-card p-6">
-            <div className="flex justify-between items-start mb-4">
+        <div
+            onClick={onClick}
+            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group cursor-pointer active:scale-[0.98]"
+        >
+            {/* Background Decoration */}
+            {colorClass === 'red' && (
+                <div className="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -mr-4 -mt-4 opacity-50 z-0" />
+            )}
+
+            <div className="relative z-10 flex justify-between items-start mb-2">
                 <div>
-                    <h3 className="text-slate-500 text-sm font-medium">{title}</h3>
-                    <div className="flex items-baseline mt-1">
-                        <span className="text-2xl font-bold text-slate-900">{value}</span>
+                    <h3 className="text-gray-500 text-sm font-semibold tracking-wide">{title}</h3>
+                    <div className="mt-2 text-3xl font-black text-gray-900 tracking-tight">
+                        {value !== null && value !== undefined ? value : '-'}
                     </div>
                 </div>
-                <div className={`flex items-center px-2 py-1 rounded-full text-xs font-semibold ${trend === 'up' ? 'bg-emerald-50 text-emerald-600' :
-                    trend === 'down' ? 'bg-red-50 text-red-600' :
-                        'bg-slate-50 text-slate-600'
-                    }`}>
-                    {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '•'} {trendValue}
+                <div className={`p-3 rounded-xl ${theme.iconBg} ${theme.text}`}>
+                    <Icon className="w-6 h-6" strokeWidth={2.5} />
                 </div>
             </div>
 
-            <div className="h-12 w-full mt-4">
-                <Bar options={options} data={data} />
+            <div className="relative z-10 mt-4 h-8 flex items-end">
+                {isChartCard && chartData && chartData.length > 0 ? (
+                    <div className="w-full h-10">
+                        <Bar options={chartOptions} data={chartDataConfig} />
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        {/* Trend Indicator */}
+                        {trend !== undefined && (
+                            <div className={`
+                                px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1
+                                ${trend === 0
+                                    ? 'bg-gray-100 text-gray-600'
+                                    : trendDirection === 'up'
+                                        ? (colorClass === 'red' ? 'bg-red-100 text-red-700' : 'bg-emerald-50 text-emerald-600')
+                                        : (colorClass === 'red' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600')
+                                } 
+                            `}>
+                                {trend === 0 ? '•' : (trendDirection === 'up' ? '↗' : '↘')}
+                                {trend === 0 ? 'Stabil' : `${Math.abs(trend)}%`}
+                            </div>
+                        )}
+
+                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                            {trendLabel || 'Veri yok'}
+                        </span>
+                    </div>
+                )}
             </div>
-            <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-wider">Son 6 Ay</p>
         </div>
     );
 };
 
 const DashboardStats = () => {
-    const [stats, setStats] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const data = await api.get('/dashboard/kpis');
-                if (!data) throw new Error("No data received from API");
+                const response = await api.get('/dashboard/kpis');
 
-                const mappedStats = [
-                    {
-                        title: "Toplam Öğrenci",
-                        value: (data.toplam_ogrenci || 0).toString(),
-                        trend: "up",
-                        trendValue: "+5%",
-                        colorClass: "blue",
-                        chartData: [40, 45, 38, 52, 48, 60, 75]
-                    },
-                    {
-                        title: "Zamanında Mezuniyet",
-                        value: `%${data.mezuniyet_orani || 0}`,
-                        trend: "up",
-                        trendValue: "+2%",
-                        colorClass: "blue",
-                        chartData: [65, 70, 68, 72, 75, 74, 78]
-                    },
-                    {
-                        title: "Riskli Öğrenciler",
-                        value: (data.riskli_ogrenci_sayisi || 0).toString(),
-                        trend: "down",
-                        trendValue: "Kritik",
-                        colorClass: "red",
-                        chartData: [15, 18, 12, 25, 20, 22, 24]
-                    },
-                    {
-                        title: "Danışman/Öğrenci",
-                        value: data.danisman_ogrenci_orani || "0:0",
-                        trend: "stable",
-                        trendValue: "Stable",
-                        colorClass: "slate",
-                        chartData: [12, 12, 12, 12, 12, 12, 12]
-                    }
-                ];
-                setStats(mappedStats);
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-                // Set fallback data if API fails to avoid empty UI
-                setStats([
-                    { title: "Toplam Öğrenci", value: "0", trend: "stable", trendValue: "Error", colorClass: "slate", chartData: [] },
-                    { title: "Zamanında Mezuniyet", value: "%0", trend: "stable", trendValue: "Error", colorClass: "slate", chartData: [] },
-                    { title: "Riskli Öğrenciler", value: "0", trend: "stable", trendValue: "Error", colorClass: "slate", chartData: [] },
-                    { title: "Danışman/Öğrenci", value: "0:0", trend: "stable", trendValue: "Error", colorClass: "slate", chartData: [] }
-                ]);
+                // api.js returns the JSON body directly, so 'response' IS the data object.
+                // We check if it exists and has keys.
+                const data = response;
+
+                if (!data || Object.keys(data).length === 0) {
+                    setStats(null); // Explicit no data state
+                } else {
+                    setStats(data);
+                }
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+                setError("Veri alınamadı");
+                setStats(null);
             } finally {
                 setLoading(false);
             }
@@ -148,14 +159,79 @@ const DashboardStats = () => {
     }, []);
 
 
-    if (loading) return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
-        {[1, 2, 3, 4].map(i => <div key={i} className="ads-card h-40 bg-slate-100" />)}
-    </div>;
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="bg-white h-40 rounded-2xl border border-gray-100" />
+                ))}
+            </div>
+        );
+    }
+
+    if (error || !stats) {
+        return (
+            <div className="w-full p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium text-center">
+                Veri bulunamadı. Lütfen veritabanı bağlantılarını ve SQL fonksiyonlarını kontrol edin.
+            </div>
+        );
+    }
+
+    // Mapping SQL JSON result to UI components
+    const cards = [
+        {
+            title: "Toplam Öğrenci",
+            value: stats.toplam_ogrenci?.value,
+            trend: stats.toplam_ogrenci?.trend,
+            trendDirection: stats.toplam_ogrenci?.trend_direction,
+            trendLabel: stats.toplam_ogrenci?.label,
+            icon: Users,
+            colorClass: "blue",
+            isChartCard: false,
+            path: '/student-analysis'
+        },
+        {
+            title: "Riskli Öğrenci",
+            value: stats.riskli_ogrenci?.value,
+            trend: stats.riskli_ogrenci?.trend,
+            trendDirection: stats.riskli_ogrenci?.trend_direction,
+            trendLabel: stats.riskli_ogrenci?.label,
+            icon: AlertTriangle,
+            colorClass: "red",
+            isChartCard: false,
+            path: '/student-analysis'
+        },
+        {
+            title: "Aktif Tezler",
+            value: stats.aktif_tezler?.value,
+            trend: stats.aktif_tezler?.trend,
+            chartData: stats.aktif_tezler?.chart_data,
+            icon: BookOpen,
+            colorClass: "purple",
+            isChartCard: true,
+            path: '/advisor-analysis' // Closest match for thesis management for now
+        },
+        {
+            title: "Ort. Danışman Yükü",
+            value: stats.danisman_yuku?.value,
+            trend: stats.danisman_yuku?.trend,
+            trendDirection: stats.danisman_yuku?.trend_direction,
+            trendLabel: stats.danisman_yuku?.label,
+            icon: Scale,
+            colorClass: "orange",
+            isChartCard: false,
+            path: '/advisor-analysis'
+        }
+    ];
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-                <StatCard key={index} {...stat} />
+            {cards.map((card, index) => (
+                <StatCard
+                    key={index}
+                    {...card}
+                    onClick={() => card.path && navigate(card.path)}
+                />
             ))}
         </div>
     );

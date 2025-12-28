@@ -85,24 +85,8 @@ const AcademicStaff = () => {
     };
 
     return (
-        <main className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-            {/* Title and Actions */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-                <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">Akademik Kadro Yönetimi</h1>
-                    <p className="text-lg text-gray-500 mt-2 font-medium">Bölüm genelindeki yük dağılımını analiz edin ve veriye dayalı atamalar yapın.</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                    <button className="px-6 py-4 bg-white border-2 border-gray-50 rounded-[20px] shadow-sm text-sm font-black text-gray-700 hover:border-blue-100 hover:bg-blue-50 transition-all flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                        Yeni Akademisyen
-                    </button>
-                    <button className="px-6 py-4 bg-blue-600 text-white rounded-[20px] shadow-xl shadow-blue-200 text-sm font-black hover:bg-blue-700 transition-all flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                        Rapor İndir
-                    </button>
-                </div>
-            </div>
+        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
 
             {/* Stats Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">

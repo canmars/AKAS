@@ -112,12 +112,8 @@ const CourseAnalysis = () => {
     };
 
     return (
-        <main className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-            {/* Header & Title */}
-            <div className="mb-12">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight">Ders Performans Panosu</h1>
-                <p className="text-lg text-gray-500 mt-2 font-medium">Bilgisayar Mühendisliği Bölümü Akademik Performans Analizi</p>
-            </div>
+        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
                 {/* Left: Target & Stats */}

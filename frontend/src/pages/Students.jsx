@@ -18,20 +18,17 @@ const Students = () => {
     ];
 
     return (
-        <main className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
+        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Page Header & Stats Row */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-12">
-                <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">Öğrenci Veritabanı</h1>
-                    <p className="text-lg text-gray-500 mt-2 font-medium">Bölümünüzdeki tüm öğrencilerin akademik ve tez durumlarını yönetin.</p>
-                </div>
+            <div className="flex justify-end gap-8 mb-12">
+
 
                 <div className="flex flex-wrap gap-4">
                     {stats.map((stat, idx) => (
                         <div key={idx} className="bg-white px-8 py-4 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-6 group hover:shadow-md transition-all">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.color === 'blue' ? 'bg-blue-50 text-blue-600' :
-                                    stat.color === 'red' ? 'bg-red-50 text-red-600' :
-                                        'bg-green-50 text-green-600'
+                                stat.color === 'red' ? 'bg-red-50 text-red-600' :
+                                    'bg-green-50 text-green-600'
                                 }`}>
                                 {stat.icon === 'users' && <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h11v-1a7 7 0 00-7-7z" /></svg>}
                                 {stat.icon === 'alert' && <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>}
@@ -207,9 +204,9 @@ const Students = () => {
                                         </td>
                                         <td className="px-8 py-6">
                                             <span className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm border ${student.status.includes('Ders') ? 'bg-red-50 text-red-600 border-red-100' :
-                                                    student.status.includes('Yazım') ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                                        student.status.includes('Öneri') ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
-                                                            'bg-purple-50 text-purple-600 border-purple-100'
+                                                student.status.includes('Yazım') ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                                    student.status.includes('Öneri') ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
+                                                        'bg-purple-50 text-purple-600 border-purple-100'
                                                 }`}>
                                                 {student.status === 'Ders Tekrarı' && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-600 mr-2 mb-0.5"></span>}
                                                 {student.status}
@@ -267,8 +264,8 @@ const Students = () => {
                             ].map((col, idx) => (
                                 <div key={idx} className="space-y-6">
                                     <div className={`p-5 rounded-2xl flex items-center justify-between border ${col.color === 'blue' ? 'bg-blue-50 border-blue-100 text-blue-600' :
-                                            col.color === 'purple' ? 'bg-purple-50 border-purple-100 text-purple-600' :
-                                                'bg-gray-50 border-gray-100 text-gray-500'
+                                        col.color === 'purple' ? 'bg-purple-50 border-purple-100 text-purple-600' :
+                                            'bg-gray-50 border-gray-100 text-gray-500'
                                         }`}>
                                         <span className="text-sm font-black uppercase tracking-wider">{col.title}</span>
                                         <span className="text-xs font-black px-3 py-1 bg-white/50 rounded-lg">{col.count}</span>

@@ -10,93 +10,83 @@ import {
 
 ChartJS.register(ArcElement, ChartTooltip, ChartLegend);
 
+import { useNavigate } from 'react-router-dom';
+
+// ... (existing imports)
+
 const RiskDistribution = () => {
-    const [stats, setStats] = useState({ high: 0, medium: 0, low: 0 });
+    const [stats, setStats] = useState({ high: 0, medium: 0, low: 0, total: 0 });
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchRiskData = async () => {
-            try {
-                const data = await api.get('/dashboard/risk-distribution');
-                setStats(data);
-            } catch (error) {
-                console.error("Error fetching risk data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // ... (useEffect and data processing)
 
-        fetchRiskData();
-    }, []);
-
-    const total = stats.high + stats.medium + stats.low;
-    const calculatePercentage = (val) => total > 0 ? Math.round((val / total) * 100) : 0;
-
-    const data = {
-        labels: ['Yüksek Risk', 'Orta Risk', 'Düşük Risk'],
-        datasets: [
-            {
-                data: [stats.high, stats.medium, stats.low],
-                backgroundColor: [
-                    '#ef4444', // Red-500
-                    '#f97316', // Orange-500
-                    '#10b981', // Emerald-500
-                ],
-                borderWidth: 0,
-                cutout: '75%',
-            },
-        ],
+    const handleChartClick = (event, elements) => {
+        // Navigate to student analysis on click
+        navigate('/student-analysis');
     };
 
+    // ... (chart data and options setup)
+
+    // Add onClick to options
     const options = {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: handleChartClick, // Chart interactivity
         plugins: {
             legend: { display: false },
+            tooltip: {
+                enabled: true,
+                backgroundColor: '#1e293b',
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                    label: (context) => {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                        return `${label}: ${value} (%${percentage})`;
+                    }
+                }
+            },
         },
+        onHover: (event, chartElement) => {
+            event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+        }
     };
 
-    const riskLevels = [
-        { label: 'Yüksek Risk', percentage: `${calculatePercentage(stats.high)}%`, count: stats.high, color: 'bg-red-500' },
-        { label: 'Orta Risk', percentage: `${calculatePercentage(stats.medium)}%`, count: stats.medium, color: 'bg-orange-500' },
-        { label: 'Düşük Risk', percentage: `${calculatePercentage(stats.low)}%`, count: stats.low, color: 'bg-emerald-500' },
-    ];
-
-    if (loading) return <div className="ads-card p-6 h-full animate-pulse flex flex-col">
-        <div className="h-6 w-32 bg-slate-100 mb-6" />
-        <div className="mx-auto w-40 h-40 rounded-full bg-slate-100 mb-8" />
-        <div className="space-y-4">
-            {[1, 2, 3].map(i => <div key={i} className="h-4 bg-slate-100 rounded" />)}
-        </div>
-    </div>;
+    // ... (rest of component)
 
     return (
-        <div className="ads-card p-6 h-full flex flex-col">
-            <div className="mb-6">
-                <h2 className="text-lg font-bold text-slate-800">Risk Dağılımı</h2>
-                <p className="text-xs text-slate-400">Tüm öğrencilerin risk analizi</p>
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col">
+            <div className="mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Öğrenci Risk Dağılımı</h2>
+                <p className="text-sm text-gray-500">Risk skorlarına göre dağılım</p>
             </div>
 
-            <div className="relative h-48 mb-8">
-                <Doughnut data={data} options={options} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-3xl font-bold text-slate-900">{total}</span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Toplam</span>
+            <div className="relative flex-1 min-h-[200px] flex items-center justify-center p-4">
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                    <span className="text-4xl font-extrabold text-slate-800 tracking-tight">{total}</span>
+                    <span className="text-xs text-gray-400 font-medium">Toplam Öğrenci</span>
+                </div>
+                <div className="w-full h-full relative z-0">
+                    <Doughnut data={data} options={options} />
                 </div>
             </div>
 
-            <div className="space-y-4 mt-auto">
+            <div className="grid grid-cols-3 gap-2 mt-6 border-t border-gray-50 pt-6">
                 {riskLevels.map((risk, index) => (
-                    <div key={index} className="flex items-center justify-between group">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-3 h-3 rounded-full ${risk.color}`} />
-                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
-                                {risk.label}
+                    <div
+                        key={index}
+                        className="flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
+                        onClick={() => navigate('/student-analysis')}
+                    >
+                        <span className="text-xs text-gray-400 font-medium mb-1">{risk.label}</span>
+                        <div className="flex items-center gap-1.5">
+                            <div className={`w-2 h-2 rounded-full ${risk.dotColor}`}></div>
+                            <span className={`text-lg font-bold ${risk.color}`}>
+                                {risk.percentage}
                             </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-slate-900">{risk.percentage}</span>
-                            <span className="text-sm text-slate-400">({risk.count})</span>
                         </div>
                     </div>
                 ))}

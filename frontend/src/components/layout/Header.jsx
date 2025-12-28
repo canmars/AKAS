@@ -1,12 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Bell, Settings, ChevronDown, LogOut, User } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+    GraduationCap,
+    Bell,
+    Settings,
+    ChevronDown,
+    LogOut,
+    User,
+    Menu,
+    ChevronRight,
+    LayoutDashboard,
+    Users,
+    UserCheck,
+    BookOpen
+} from 'lucide-react';
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [notificationCount, setNotificationCount] = useState(3); // Mock notification count
+    const [notificationCount, setNotificationCount] = useState(3);
+
+    const routeTitles = {
+        '/': { title: 'Bölüm Başkanı Paneli', icon: LayoutDashboard },
+        '/dashboard': { title: 'Bölüm Başkanı Paneli', icon: LayoutDashboard },
+        '/student-analysis': { title: 'Öğrenci Analizi', icon: Users },
+        '/advisor-analysis': { title: 'Danışman Analizi', icon: UserCheck },
+        '/course-analysis': { title: 'Ders Analizi', icon: BookOpen },
+        '/academic-staff': { title: 'Akademik Kadro', icon: GraduationCap }
+    };
+
+    const currentRoute = routeTitles[location.pathname] || { title: 'Panel', icon: GraduationCap };
 
     useEffect(() => {
         // Kullanıcı bilgilerini localStorage'dan al
@@ -33,21 +58,44 @@ const Header = () => {
 
     return (
         <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
 
-                    {/* Logo ve Başlık */}
+                    {/* Sol Taraf - Menu Button + Logo */}
                     <div className="flex items-center gap-3">
-                        <div className="bg-blue-500 p-2 rounded-lg">
-                            <GraduationCap className="w-6 h-6 text-white" strokeWidth={2} />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900" style={{ fontWeight: 700 }}>
-                                AKAS
-                            </h1>
-                            <p className="text-xs text-gray-500 font-normal" style={{ fontWeight: 400 }}>
-                                Akademik Karar Destek Sistemi
-                            </p>
+                        {/* Menu Toggle Button */}
+                        <button
+                            onClick={onMenuClick}
+                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
+
+                        {/* Logo ve Başlık */}
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
+                                <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-100 group-hover:scale-105 transition-transform duration-200">
+                                    <GraduationCap className="w-6 h-6 text-white" strokeWidth={2.5} />
+                                </div>
+                                <div className="flex flex-col justify-center hidden sm:flex">
+                                    <h1 className="text-xl font-black text-gray-900 tracking-tighter leading-none">
+                                        AKAS
+                                    </h1>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+
+                                {/* Ürün Dokunuşu - Sayfa Göstergesi (Breadcrumb Pill) */}
+                                <div className="hidden lg:flex items-center gap-3">
+                                    <div className="flex items-center gap-2.5 px-2">
+                                        <currentRoute.icon className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
+                                        <div className="h-4 w-px bg-gray-200 mx-0.5"></div>
+                                        <span className="text-sm font-bold text-gray-700 uppercase tracking-wide">
+                                            {currentRoute.title}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -87,7 +135,7 @@ const Header = () => {
                                             {getRoleDisplayName(user.role)}
                                         </p>
                                     </div>
-                                    <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
                                 {/* Dropdown Menu */}

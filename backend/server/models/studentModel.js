@@ -71,39 +71,17 @@ const getRiskyStudents = async () => {
 
 const getRiskDistribution = async () => {
     try {
-        // Fetch GNO for all students to calculate distribution
-        // Using fetchWithRetry for stability
-        const { data: students, error } = await fetchWithRetry(() =>
-            supabase
-                .from('ogrenci')
-                .select('gno')
-        );
+        const { data, error } = await supabase.rpc('get_risk_distribution_stats');
 
         if (error) throw error;
 
-        let stats = { high: 0, medium: 0, low: 0 };
+        // If data is null/empty for some reason, return defaults
+        if (!data) return { high: 0, medium: 0, low: 0, total: 0 };
 
-        if (students) {
-            students.forEach(s => {
-                const gno = parseFloat(s.gno);
-                if (!isNaN(gno)) {
-                    if (gno < 2.0) {
-                        stats.high++;
-                    } else if (gno >= 2.0 && gno < 2.5) {
-                        stats.medium++;
-                    } else {
-                        stats.low++;
-                    }
-                }
-            });
-        }
-
-        return stats;
-
+        return data;
     } catch (error) {
-        console.error("Error calculating risk distribution:", error.message);
-        // Fallback to 0 if error, to prevent dashboard crash
-        return { high: 0, medium: 0, low: 0 };
+        console.error("Error fetching risk distribution:", error.message);
+        return { high: 0, medium: 0, low: 0, total: 0 };
     }
 };
 
@@ -142,12 +120,11 @@ const getFunnelMetrics = async () => {
 
 const getDashboardKPIsV2 = async () => {
     try {
-        const { data, error } = await supabase.rpc('get_dashboard_kpis_v2');
+        const { data, error } = await supabase.rpc('get_dashboard_kpis_v3');
         if (error) throw error;
         return data;
     } catch (error) {
-        console.error("Error fetching dashboard KPIs v2:", error.message);
-        return null;
+        throw new Error('Error fetching dashboard KPIs v3: ' + error.message);
     }
 };
 
