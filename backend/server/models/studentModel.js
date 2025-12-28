@@ -98,9 +98,12 @@ const getDashboardKPIs = async () => {
 
 const getAdvisorLoadMetrics = async () => {
     try {
-        const { data, error } = await supabase.rpc('get_advisor_load_metrics');
+        // Using the new detailed distribution function as requested
+        const { data, error } = await supabase.rpc('get_advisor_workload_distribution');
+
         if (error) throw error;
-        return data;
+
+        return data || [];
     } catch (error) {
         console.error('Error fetching advisor load metrics:', error.message);
         return [];
@@ -141,11 +144,15 @@ const getFunnelStatsV2 = async () => {
 
 const getCriticalAlarms = async () => {
     try {
-        const { data, error } = await supabase.rpc('get_critical_student_alarms');
+        const { data, error } = await supabase
+            .from('view_kritik_alarmlar')
+            .select('*')
+            .limit(20);
+
         if (error) throw error;
         return data;
     } catch (error) {
-        console.error("Error fetching critical alarms:", error.message);
+        console.error("Error fetching critical alarms from view:", error.message);
         return [];
     }
 };

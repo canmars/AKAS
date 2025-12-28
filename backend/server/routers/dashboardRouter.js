@@ -42,6 +42,13 @@ router.get('/critical-alarms',
     dashboardController.getCriticalAlarms
 );
 
+// Kritik alarmlar (YENİ ALIAS)
+router.get('/alarms',
+    verifyToken,
+    authorizeRoles('Bolum_Baskani'),
+    dashboardController.getCriticalAlarms
+);
+
 // Risk dağılımı (Tüm öğrencilerin risk seviyeleri)
 router.get('/risk-distribution',
     verifyToken,
