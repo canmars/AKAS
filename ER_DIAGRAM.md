@@ -3,7 +3,7 @@
 Bu diyagram, Danışman Atama işlemlerinde kullanılan temel tabloları ve ilişkileri göstermektedir.
 
 ## ER Diyagramı
-![AKAS ER Diagram](./ER_DIAGRAM.png)
+![AKAS ER Diagram](./akas_db_ER.png)
 
 ## Mermaid Diagram
 
