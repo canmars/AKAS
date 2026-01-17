@@ -1,39 +1,113 @@
-# AKAS - Akademik Karar Analiz Sistemi
+# AKAS (Akademik Karar Analiz Sistemi)
 
-> **Lisansüstü Süreç Yönetimi ve Veri Odaklı Karar Destek Sistemi**
+> **Dokuz Eylül Üniversitesi Yönetim Bilişim Sistemleri Bölümü Lisansüstü Süreçleri için Web Tabanlı Karar Destek Sistemi**
 
-AKAS, Dokuz Eylül Üniversitesi Yönetim Bilişim Sistemleri Bölümü için geliştirilmiş; lisansüstü eğitim süreçlerini izleyen, analiz eden ve Bölüm Başkanı'na stratejik karar alma konusunda destek olan yeni nesil bir web uygulamasıdır.
+**AKAS**, Dokuz Eylül Üniversitesi YBS Bölümü'nün lisansüstü eğitim süreçlerinde karşılaşılan kritik yönetim problemlerine çözüm olarak geliştirilen, **yarı-yapısal, taktiksel ve stratejik seviye kararlara** destek olmayı hedefleyen bir **Karar Destek Sistemi (KDS)** projesidir.
+
+Projenin temel amacı kararları tamamen otomatize etmek değil; Bölüm Başkanı'na veriye dayalı, proaktif ve şeffaf stratejik kararlar almasını sağlayan bir **"yardımcı pilot" (co-pilot)** rolü üstlenmektir.
+
+---
+
+## 🎓 Ders Projesi Bilgileri (Sunucu Tabanlı Programlama)
+
+**Ders:** YBS 3015 - Karar Destek Sistemleri / Sunucu Tabanlı Programlama  
+**Geliştirici:** 2023469138 - Muhammet Can Arslan  
+**Öğretim Üyesi:** Prof. Dr. Vahap Tecim  
+
+Bu proje, **Sunucu Tabanlı Programlama** dersi kapsamında **MVC Mimarisi** ve **RESTful API** standartlarına uygun olarak geliştirilmiş; **Karar Destek Sistemleri** dersi kapsamında ise teorik çerçevesi ve yönetimsel analizleri (Problem Tanımı, Teşhis, Çözüm) yapılandırılmıştır.
 
 ---
 
-## 🎓 Ders Projesi Bilgileri
+## � Problemin Tanımı ve Kapsam
 
-**Ders:** Sunucu Tabanlı Programlama (YBS 3. Sınıf)  
-**Konu:** MVC Mimarisi ile RESTful API Tasarımı  
-**Geliştirme:** Node.js (Express) + PostgreSQL (Supabase)
+Mevcut sistemin analizinde, karar alma süreçlerini tıkayan üç temel problem saptanmıştır:
 
-### 📌 Proje Senaryosu: Danışman Atama Yönetim Sistemi
+### 1. Öğrenci Risk Takibindeki Yetersizlikler
+Öğrencilerin "Kritik" durumda olduğu (Örn: GNO < 2.50 veya TİK başarısızlığı) ancak dönem sonlarında fark edilebilmektedir. Manuel takipler riskin zamanında yönetilmesini engellemektedir.
 
-**İş Problemi:**  
-Lisansüstü programlarda öğrencilere danışman ataması, akademik yükün dengeli dağılımını gerektiren kritik bir süreçtir. Mevcut sistemde danışman atamaları manuel yapılmakta, bu da kapasite aşımları ve pasif danışmanlara yanlışlıkla atama yapılması gibi sorunlara yol açmaktadır.
+### 2. Danışman İş Yükü ve Kota Yönetimi
+"Tezli Program" (Kota: 14) ve "Tezsiz Program" (Kota: 16) havuzlarının manuel takibi hatalara ve dengesiz yük dağılımına yol açmaktadır. Pasif veya yetkisiz personele (Arş. Gör.) atama yapılması riski bulunmaktadır.
 
-**Çözüm:**  
-AKAS'ın Danışman Atama Modülü, yeni öğrencilere danışman atanmasını ve mevcut danışman değişikliklerini otomatize eder. Sistem, iki temel iş kuralı ile süreç kontrolü sağlar:
-
-1. **Danışman Yük Limiti Kontrolü**: Bir danışmanın maksimum öğrenci kapasitesi aşılmadan atama yapılır
-2. **Aktif Danışman Kontrolü**: Sadece aktif statüdeki danışmanlar öğrencilere atanabilir
-
-Bu modül sayesinde bölüm sekreteri ve yönetimi, hatasız ve dengeli bir danışman dağılımı sağlar.
-
-### 🎯 Özellikler
-
-- ✅ **CRUD Operasyonları**: Danışman atama (CREATE), danışman listesi (READ), danışman değiştirme (UPDATE)
-- ✅ **İş Kuralları**: Kapasite ve aktiflik kontrolü ile süreç güvenliği
-- ✅ **RESTful API**: HTTP metodları ve status code'lara uygun tasarım
-- ✅ **MVC Mimarisi**: Model-View-Controller desenine tam uyum
-- ✅ **Transaction Yönetimi**: Danışman geçmiş kaydı ve sayaç güncellemeleri
+### 3. Veri Bütünlüğü Eksikliği
+Öğrenci verileri, ders kayıtları ve tez durumlarının farklı listelerde tutulması "Bütünleşik Karar Almayı" engellemektedir.
 
 ---
+
+## 💡 Çözüm Yaklaşımı: Karar Destek Sistemi (KDS)
+
+AKAS, ham veriyi işleyerek "karar bilgisine" dönüştürür. Sistem, akademik yönetmelikleri (YÖK ve DEÜ SBE kuralları) yazılım algoritmalarına dönüştürür.
+
+### Temel Özellikler
+1. **Şeffaflık ve Açıklanabilirlik (Explainability):** Sistemdeki her hesaplama (örn: bir öğrencinin neden riskli olduğu), arayüzdeki `(i)` ikonları ile açıklanır. Karar verici "neden" sorusunun cevabını sistemden alabilir.
+2. **Proaktif Yönetim:** Risk oluştuğu anda (örn: TİK başarısızlığı) sistem yöneticiyi uyarır.
+3. **Thick Database, Thin Backend:** İş mantığı ve veri bütünlüğü veritabanı seviyesinde (SQL Fonksiyonları ve Triggerlar) garanti altına alınmıştır.
+
+---
+
+## 🚀 Sistem Modülleri (Bulgular)
+
+### 1. 📊 Yönetim Kokpiti (Dashboard)
+Yöneticinin anlık durum analizi yapabildiği ana ekrandır.
+- **KPI Kartları:** Toplam öğrenci, aktif tezler, mezuniyet oranları.
+- **Akademik Huni:** Öğrencilerin aşama dağılımı.
+- **Kritik Alarmlar:** Atılma riski olan öğrencilerin otomatik tespiti.
+
+### 2. 👥 Danışman Analiz Modülü
+Danışman yüklerinin dengeli dağıtılmasını sağlar.
+- **Yük Dağılım Grafikleri:** Tezli/Tezsiz ve Ders/Tez aşaması ayrımıyla görselleştirme.
+- **Kapasite Kontrolü:** Yönetmelik kotalarına (14/16) göre doluluk analizi.
+- **Danışman Atama (CRUD):** Kapasite ve aktiflik kontrolleriyle güvenli atama işlemi.
+
+### 3. 🎓 Öğrenci Analiz Modülü
+- **Risk Skorlama:** GNO, dönem uzatma ve başarısız ders sayılarına göre otomatik risk puanı (0-100).
+- **Profil Yönetimi:** Öğrencinin tüm akademik geçmişinin tek ekranda görüntülenmesi.
+
+### 4. 📚 Ders Analiz Modülü (Darboğaz Matrisi)
+- **Başarı Analizi:** Derslerin başarı oranları ve kayıt sayılarına göre "Darboğaz Derslerin" tespiti.
+
+---
+
+## 🛠️ Teknik Mimari
+
+Proje, **Model-View-Controller (MVC)** mimarisine sadık kalınarak geliştirilmiştir.
+
+- **Frontend:** React.js (Vite)
+- **Backend:** Node.js (Express)
+- **Veritabanı:** PostgreSQL (Supabase)
+- **Veri Erişim Katmanı:** SQL Stored Procedures & Triggers (Business Logic buradadır)
+
+---
+
+## 📡 API Endpoints (Özet)
+
+### 👥 Danışman ve Karar Destek API'leri
+
+#### Danışman Atama (Karar Destek Destekli)
+```http
+POST /api/advisors/assign
+```
+*Sadece kapasitesi uygun ve aktif danışmanlara atama yapılmasına izin vererek hatalı kararları engeller.*
+
+#### Karar Destek Metrikleri
+- `GET /api/dashboard/kpis` - Kritik KPI'lar
+- `GET /api/dashboard/risk-distribution` - Risk Analizi
+- `GET /api/advisors/load-distribution` - Danışman Yük Analizi
+
+---
+
+## 📋 İş Kuralları (Business Rules)
+
+Sistem aşağıdaki kuralları **otomatik değil, denetleyici** olarak uygular. Yöneticiye "bunu yapamazsın" veya "bunu yaparsan şu riskler oluşur" şeklinde geri bildirim verir.
+
+### Kural 1: Danışman Yük Denetimi
+Bir danışmanın tezli/tezsiz öğrenci yükü yönetmelik sınırını (14/16) aşıyorsa, sistem atamaya onay vermez veya uyarı üretir.
+
+### Kural 2: Risk Algoritması
+`hesapla_ogrenci_riski_detayli()` fonksiyonu ile:
+- GNO < 2.50 ise **+20 Puan**
+- TİK Başarısızlığı varsa **+30 Puan**
+- Azami süreye 1 dönem kaldıysa **+15 Puan**
+risk puanı eklenir ve öğrenci "Kritik" seviyeye taşınır.
 
 ---
 
@@ -96,232 +170,122 @@ AKAS/
 │   │   │   └── StageTracking.jsx
 │   │   ├── services/               # API Servisleri (Backend ile iletişim)
 │   │   │   ├── api.js              # Axios instance
-│   │   │   └── authService.js
-│   │   ├── styles/                 # Global stiller ve Tailwind ayarları
-│   │   ├── utils/                  # Frontend yardımcı fonksiyonları
-│   │   │   ├── constants.js
-│   │   │   └── formatters.js
-│   │   ├── App.jsx                 # Ana React Bileşeni ve Router Tanımları
-│   │   └── main.jsx                # React Entry Point
-│   ├── index.html                  # Ana HTML Dosyası
-│   ├── vite.config.js              # Vite Konfigürasyonu
-│   ├── tailwind.config.js          # Tailwind Konfigürasyonu
-│   └── package.json                # Frontend bağımlılıkları
-│
-└── package.json                    # Root orkestrasyon dosyası
-```
+Manuel yapılan atamalarda yaşanan kapasite aşımları ve pasif danışmanlara atama hatalarını engellemek.
+
+**Çözüm & İş Kuralları:**
+1. **Danışman Yük Limiti Kontrolü**: Bir danışmanın mevcut öğrenci sayısı maksimum kapasitesini aşamaz.
+2. **Aktif Danışman Kontrolü**: Sadece aktif statüdeki danışmanlar öğrencilere atanabilir.
+
+**Özellikler:**
+- ✅ **CRUD Operasyonları**: Atama (Create), Değiştirme (Update), Listeleme (Read)
+- ✅ **Robust Error Handling**: İş kurallarına aykırı durumlarda 400 Bad Request
+- ✅ **Transaction**: Atama yapılırken geçmiş kaydı oluşturulur ve sayaçlar güncellenir
 
 ---
 
-## ⚙️ Kurulum ve Çalıştırma
+## 🚀 Tüm Proje Modülleri ve Özellikleri
 
-Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin.
+AKAS projesi sadece danışman atama ile sınırlı olmayıp, aşağıdaki kapsamlı modülleri de içermektedir:
 
-### 1. Gereksinimler
-- Node.js (v18 veya üzeri)
-- NPM veya Yarn
+### 1. 📊 Yönetici Dashboard (Karar Destek)
+Bölüm başkanı için kritik metriklerin tek ekranda sunulduğu modül.
+- **KPI Takibi**: Toplam öğrenci, aktif tezler, mezuniyet oranları.
+- **Akademik Huni (Funnel)**: Öğrencilerin aşamalara (Ders, Yeterlik, Tez) göre dağılımı.
+- **Kritik Alarmlar**: Atılma riski olan veya süresi dolan öğrencilerin otomatik tespiti.
+- **Risk Analizi**: Yapay zeka destekli başarı tahminlemesi.
 
-### 2. Kurulum
-Repoyu klonlayın ve bağımlılıkları yükleyin:
+### 2. 🎓 Öğrenci Analiz Modülü
+Öğrenci verilerinin derinlemesine incelendiği modül.
+- **Detaylı Filtreleme**: Risk grubu, aşama, program türü bazlı listeleme.
+- **Öğrenci Profili**: Not ortalaması, aldığı dersler, tez durumu ve geçmiş hareketleri.
+- **Risk İzleme**: Başarısızlık ihtimali yüksek öğrencilerin takibi.
 
-```bash
-# Kök dizinde (Root)
-npm install
+### 3. 👥 Danışman Yönetim Sistemi
+Akademik personelin performans ve yük takibi.
+- **Yük Dağılımı**: Hangi hocanın kaç öğrencisi var, kontenjan dolulukları.
+- **Performans Metrikleri**: Danışmanlık yaptığı öğrencilerin başarı oranları.
+- **Uzmanlık Alanları**: Hangi hocanın hangi alanda (Yapay Zeka, Veri Bilimi vb.) çalıştığı.
+- **Danışman Atama**: (Ders kapsamında geliştirilen CRUD modülü).
 
-# Backend bağımlılıklarını yükle
-cd backend
-npm install
-
-# Frontend bağımlılıklarını yükle
-cd ../frontend
-npm install
-```
-
-### 3. Çevresel Değişkenler (.env)
-`backend/.env` klasörü altında aşağıdaki değişkenlerin tanımlı olduğundan emin olun:
-
-```env
-PORT=3000
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-```
-
-### 4. Başlatma
-Projenin ana dizininde (root) aşağıdaki komutu çalıştırarak **hem Backend hem Frontend** sunucularını aynı anda başlatabilirsiniz:
-
-```bash
-npm run dev
-```
-
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3000
+### 4. 📚 Ders Analiz Modülü
+Derslerin başarı ve verimlilik analizi.
+- **Başarı Oranları**: Ders bazında geçme/kalma istatistikleri.
+- **Kritik Darboğazlar**: Öğrencilerin en çok zorlandığı derslerin tespiti.
 
 ---
 
-## 📡 API Endpoints
+## 🛠️ Teknik Mimari
 
-### 🔐 Authentication
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| POST | `/api/auth/login` | Kullanıcı girişi | ❌ |
+Proje **MVC (Model-View-Controller)** mimarisine sadık kalınarak geliştirilmiştir.
 
-### 👥 Danışman Atama Modülü (CRUD)
-
-#### CREATE - Danışman Atama
-```http
-POST /api/advisors/assign
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "ogrenci_id": "uuid",
-  "danisman_id": "uuid"
-}
-```
-
-**Başarılı Response (201 Created):**
-```json
-{
-  "success": true,
-  "message": "Danışman başarıyla atandı",
-  "data": {
-    "ogrenci_id": "...",
-    "danisman_id": "...",
-    "ogrenci_ad_soyad": "Ahmet Yılmaz",
-    "danisman_ad_soyad": "Prof. Dr. Ayşe Kaya",
-    "atama_tarihi": "2026-01-17"
-  }
-}
-```
-
-**Hata Response (400 Bad Request - Kapasite Dolu):**
-```json
-{
-  "success": false,
-  "error": "Danışman kapasitesi dolu. Maksimum: 10, Mevcut: 10"
-}
-```
-
-**Hata Response (400 Bad Request - Pasif Danışman):**
-```json
-{
-  "success": false,
-  "error": "Seçilen danışman aktif değil ve atama yapılamaz"
-}
-```
+- **Backend**: Node.js, Express.js
+- **Veritabanı**: PostgreSQL (Supabase) – 30+ Tablo
+- **Authentication**: JWT (JSON Web Token)
+- **API Yapısı**: RESTful Architecture
 
 ---
 
-#### UPDATE - Danışman Değiştirme
-```http
-PUT /api/advisors/change/:studentId
-Authorization: Bearer {token}
-Content-Type: application/json
+## 📡 API Endpoints (Özet)
 
-{
-  "yeni_danisman_id": "uuid",
-  "degisiklik_nedeni": "Uzmanlık alanı uygunluğu"
-}
-```
+### 🔐 Auth
+- `POST /api/auth/login` - Kullanıcı girişi
 
-**Başarılı Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Danışman değişikliği başarılı",
-  "data": {
-    "ogrenci_id": "...",
-    "ogrenci_ad_soyad": "Ahmet Yılmaz",
-    "eski_danisman_id": "...",
-    "eski_danisman_ad_soyad": "Prof. Dr. Mehmet Öz",
-    "yeni_danisman_id": "...",
-    "yeni_danisman_ad_soyad": "Prof. Dr. Ayşe Kaya",
-    "degisiklik_tarihi": "2026-01-17",
-    "degisiklik_nedeni": "Uzmanlık alanı uygunluğu"
-  }
-}
-```
+### 👥 Danışman Modülü (Advisor)
+- `POST /api/advisors/assign` - **Danışman Atama (Course Project)**
+- `PUT /api/advisors/change/:studentId` - **Danışman Değiştirme (Course Project)**
+- `GET /api/advisors/load-distribution` - Yük dağılımı
+- `GET /api/advisors/kpis` - Danışman performans metrikleri
+- `GET /api/advisors/:id/students` - Danışmanın öğrencileri
+
+### 📊 Dashboard
+- `GET /api/dashboard/kpis` - Genel istatistikler
+- `GET /api/dashboard/funnel` - Akademik huni verileri
+- `GET /api/dashboard/critical-alarms` - Sistem uyarıları
+- `GET /api/dashboard/risk-distribution` - Risk dağılımı
+
+### 🎓 Öğrenci Modülü (Student)
+- `GET /api/students` - Filtreli öğrenci listesi
+- `GET /api/students/:id/details` - Öğrenci detay profili
+- `GET /api/students/stats` - İstatistiksel özetler
+- `GET /api/students/stats/high-risk` - Yüksek riskli öğrenciler
+
+### 📚 Ders Modülü (Course)
+- `GET /api/courses/analysis` - Ders başarı analizleri
+- `GET /api/courses/students` - Dersi alan öğrenciler
 
 ---
 
-#### READ - Danışman Listesi
-```http
-GET /api/advisors/load-distribution
-Authorization: Bearer {token}
-```
-
-**Response (200 OK):**
-```json
-[
-  {
-    "ad": "Ayşe",
-    "soyad": "Kaya",
-    "mevcut_danismanlik_sayisi": 8
-  },
-  ...
-]
-```
-
----
-
-### 📊 Diğer API Endpoint'leri
-
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/dashboard/kpis` | Dashboard KPI'ları | ✅ |
-| GET | `/api/students` | Öğrenci listesi (pagination) | ✅ |
-| GET | `/api/students/:id/details` | Öğrenci detay bilgisi | ✅ |
-| GET | `/api/courses/analysis` | Ders analizi verileri | ✅ |
-| GET | `/api/advisors/kpis` | Danışman analizi KPI'ları | ✅ |
-| GET | `/api/advisors/performance` | Danışman performans listesi | ✅ |
-
----
-
-## 📋 İş Kuralları (Business Rules)
+## 📋 İş Kuralları (Danışman Atama Modülü İçin)
 
 ### İş Kuralı 1: Danışman Yük Limiti Kontrolü
 
 **Tanım:** Bir danışmana öğrenci atanırken veya mevcut danışman değiştirilirken, danışmanın mevcut öğrenci sayısı (`mevcut_danismanlik_sayisi`) maksimum kapasitesini (`maksimum_kapasite`) aşmamalıdır.
 
 **Kontrol Noktaları:**
-- ✅ POST `/api/advisors/assign` - Yeni atama öncesi
-- ✅ PUT `/api/advisors/change/:studentId` - Yeni danışman atanmadan önce
+- ✅ POST `/api/advisors/assign`
+- ✅ PUT `/api/advisors/change/:studentId`
 
-**Teknik Implementasyon:**
+**Teknik Kod:**
 ```javascript
-// Model: advisorModel.checkAdvisorCapacity()
 const hasCapacity = mevcut_danismanlik_sayisi < maksimum_kapasite;
-if (!hasCapacity) {
-    throw new Error('Danışman kapasitesi dolu');
-}
+if (!hasCapacity) throw new Error('Danışman kapasitesi dolu');
 ```
-
-**HTTP Yanıt:**
-- Kapasite dolu ise → **400 Bad Request**
-- Hata mesajı: "Danışman kapasitesi dolu. Maksimum: X, Mevcut: Y"
 
 ---
 
 ### İş Kuralı 2: Aktif Danışman Kontrolü
 
-**Tanım:** Sadece aktif statüdeki danışmanlar (`aktif_danisman_mi = true` AND `aktif_mi = true`) öğrencilere atanabilir. Pasif, izinli veya emekli danışmanlara atama yapılamaz.
+**Tanım:** Sadece aktif statüdeki danışmanlar (`aktif_danisman_mi = true` AND `aktif_mi = true`) öğrencilere atanabilir.
 
 **Kontrol Noktaları:**
-- ✅ POST `/api/advisors/assign` - Yeni atama öncesi
-- ✅ PUT `/api/advisors/change/:studentId` - Yeni danışman atanmadan önce
+- ✅ POST `/api/advisors/assign`
+- ✅ PUT `/api/advisors/change/:studentId`
 
-**Teknik Implementasyon:**
+**Teknik Kod:**
 ```javascript
-// Model: advisorModel.checkAdvisorStatus()
 const isActive = aktif_danisman_mi === true && aktif_mi === true;
-if (!isActive) {
-    throw new Error('Seçilen danışman aktif değil');
-}
+if (!isActive) throw new Error('Seçilen danışman aktif değil');
 ```
-
-**HTTP Yanıt:**
-- Danışman pasif ise → **400 Bad Request**
-- Hata mesajı: "Seçilen danışman aktif değil ve atama yapılamaz"
 
 ---
 
