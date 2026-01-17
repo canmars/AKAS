@@ -10,9 +10,9 @@ Projenin temel amacı kararları tamamen otomatize etmek değil; Bölüm Başkan
 
 ## 🎓 Ders Projesi Bilgileri (Sunucu Tabanlı Programlama)
 
-**Ders:** YBS 3015 - Karar Destek Sistemleri / Sunucu Tabanlı Programlama  
+**Ders:** YBS 3019 - Sunucu Tabanlı Programlama  
 **Geliştirici:** 2023469138 - Muhammet Can Arslan  
-**Öğretim Üyesi:** Prof. Dr. Vahap Tecim  
+**Öğretim Üyesi:** Prof. Dr. Can Aydın
 
 Bu proje, **Sunucu Tabanlı Programlama** dersi kapsamında **MVC Mimarisi** ve **RESTful API** standartlarına uygun olarak geliştirilmiş; **Karar Destek Sistemleri** dersi kapsamında ise teorik çerçevesi ve yönetimsel analizleri (Problem Tanımı, Teşhis, Çözüm) yapılandırılmıştır.
 
@@ -307,5 +307,14 @@ if (!isActive) throw new Error('Seçilen danışman aktif değil');
 - **Kurum**: Dokuz Eylül Üniversitesi - Yönetim Bilişim Sistemleri
 
 ---
-*© 2025 AKAS Project.*
+
+
+## 📄 Lisans
+
+Bu proje **MIT Lisansı** ile lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakabilirsiniz.
+
+Copyright (c) 2026 Muhammet Can Arslan
+
+---
+*© 2026 AKAS Project.*
 
