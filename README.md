@@ -330,7 +330,7 @@ if (!isActive) {
 ### Proje Dokümantasyonu
 - **[PROJE_OZETI.md](./PROJE_OZETI.md)** - Detaylı proje özeti, veritabanı şeması ve mimari kararlar
 - **[ER_DIAGRAM.md](./ER_DIAGRAM.md)** - Danışman Atama Modülü Entity-Relationship Diyagramı (31 tablo, tam schema)
-- **[ER_DIAGRAM.png](./ER_DIAGRAM.png)** - ER Diyagramı (PNG versiyonu - **Ders Teslimi için gerekli**)
+- **[ER_DIAGRAM.png](./ER_DIAGRAM.png)** - ER Diyagramı (PNG versiyonu)
 
 ### Veritabanı
 - **Danışman Atama RPC Functions** - `backend/database/supabase_rpc_functions.sql` dosyasındaki SQL fonksiyonları Supabase'de çalıştırılmalıdır
