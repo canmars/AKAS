@@ -53,4 +53,23 @@ router.get('/performance', verifyToken, advisorController.getAdvisorPerformance)
  */
 router.get('/:id/students', verifyToken, advisorController.getAdvisorStudents);
 
+// ====== DANISMAN ATAMA MODÜLܜ (CRUD Operations) ======
+
+/**
+ * @route   POST /api/advisors/assign
+ * @desc    Öğrenciye Danışman Atama (CREATE)
+ * @access  Private
+ * @body    { ogrenci_id: uuid, danisman_id: uuid }
+ */
+router.post('/assign', verifyToken, advisorController.assignAdvisor);
+
+/**
+ * @route   PUT /api/advisors/change/:studentId
+ * @desc    Öğrencinin Danışmanını Değiştirme (UPDATE)
+ * @access  Private
+ * @param   {uuid} studentId - Öğrenci ID
+ * @body    { yeni_danisman_id: uuid, degisiklik_nedeni: string }
+ */
+router.put('/change/:studentId', verifyToken, advisorController.changeAdvisor);
+
 module.exports = router;

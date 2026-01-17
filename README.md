@@ -4,15 +4,36 @@
 
 AKAS, Dokuz Eylül Üniversitesi Yönetim Bilişim Sistemleri Bölümü için geliştirilmiş; lisansüstü eğitim süreçlerini izleyen, analiz eden ve Bölüm Başkanı'na stratejik karar alma konusunda destek olan yeni nesil bir web uygulamasıdır.
 
-## 🚀 Proje Hakkında
+---
 
-Bu proje, geleneksel öğrenci işleri otomasyonlarından farklı olarak **operasyonel veri girişinden çok stratejik analize** odaklanır. Bölüm başkanının danışman atamaları, kontenjan planlaması, riskli öğrencilerin tespiti ve ders başarı analizleri gibi konularda veri odaklı kararlar almasını sağlar.
+## 🎓 Ders Projesi Bilgileri
 
-### Öne Çıkan Özellikler
-- 📊 **İnteraktif Dashboard**: Tüm kritik metriklerin tek ekranda takibi.
-- 🎓 **Aşama Takibi**: Tez, yeterlik ve dönem projesi süreçlerinin gecikme analizi.
-- ⚠️ **Risk Analizi**: Başarısızlık riski taşıyan öğrencilerin yapay zeka destekli tespiti.
-- 👥 **Danışman Yük Yönetimi**: Akademik personel iş yükü dengesinin optimizasyonu.
+**Ders:** Sunucu Tabanlı Programlama (YBS 3. Sınıf)  
+**Konu:** MVC Mimarisi ile RESTful API Tasarımı  
+**Geliştirme:** Node.js (Express) + PostgreSQL (Supabase)
+
+### 📌 Proje Senaryosu: Danışman Atama Yönetim Sistemi
+
+**İş Problemi:**  
+Lisansüstü programlarda öğrencilere danışman ataması, akademik yükün dengeli dağılımını gerektiren kritik bir süreçtir. Mevcut sistemde danışman atamaları manuel yapılmakta, bu da kapasite aşımları ve pasif danışmanlara yanlışlıkla atama yapılması gibi sorunlara yol açmaktadır.
+
+**Çözüm:**  
+AKAS'ın Danışman Atama Modülü, yeni öğrencilere danışman atanmasını ve mevcut danışman değişikliklerini otomatize eder. Sistem, iki temel iş kuralı ile süreç kontrolü sağlar:
+
+1. **Danışman Yük Limiti Kontrolü**: Bir danışmanın maksimum öğrenci kapasitesi aşılmadan atama yapılır
+2. **Aktif Danışman Kontrolü**: Sadece aktif statüdeki danışmanlar öğrencilere atanabilir
+
+Bu modül sayesinde bölüm sekreteri ve yönetimi, hatasız ve dengeli bir danışman dağılımı sağlar.
+
+### 🎯 Özellikler
+
+- ✅ **CRUD Operasyonları**: Danışman atama (CREATE), danışman listesi (READ), danışman değiştirme (UPDATE)
+- ✅ **İş Kuralları**: Kapasite ve aktiflik kontrolü ile süreç güvenliği
+- ✅ **RESTful API**: HTTP metodları ve status code'lara uygun tasarım
+- ✅ **MVC Mimarisi**: Model-View-Controller desenine tam uyum
+- ✅ **Transaction Yönetimi**: Danışman geçmiş kaydı ve sayaç güncellemeleri
+
+---
 
 ---
 
@@ -137,8 +158,183 @@ npm run dev
 
 ---
 
+## 📡 API Endpoints
+
+### 🔐 Authentication
+| Method | Endpoint | Açıklama | Auth |
+|--------|----------|----------|------|
+| POST | `/api/auth/login` | Kullanıcı girişi | ❌ |
+
+### 👥 Danışman Atama Modülü (CRUD)
+
+#### CREATE - Danışman Atama
+```http
+POST /api/advisors/assign
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "ogrenci_id": "uuid",
+  "danisman_id": "uuid"
+}
+```
+
+**Başarılı Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Danışman başarıyla atandı",
+  "data": {
+    "ogrenci_id": "...",
+    "danisman_id": "...",
+    "ogrenci_ad_soyad": "Ahmet Yılmaz",
+    "danisman_ad_soyad": "Prof. Dr. Ayşe Kaya",
+    "atama_tarihi": "2026-01-17"
+  }
+}
+```
+
+**Hata Response (400 Bad Request - Kapasite Dolu):**
+```json
+{
+  "success": false,
+  "error": "Danışman kapasitesi dolu. Maksimum: 10, Mevcut: 10"
+}
+```
+
+**Hata Response (400 Bad Request - Pasif Danışman):**
+```json
+{
+  "success": false,
+  "error": "Seçilen danışman aktif değil ve atama yapılamaz"
+}
+```
+
+---
+
+#### UPDATE - Danışman Değiştirme
+```http
+PUT /api/advisors/change/:studentId
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "yeni_danisman_id": "uuid",
+  "degisiklik_nedeni": "Uzmanlık alanı uygunluğu"
+}
+```
+
+**Başarılı Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Danışman değişikliği başarılı",
+  "data": {
+    "ogrenci_id": "...",
+    "ogrenci_ad_soyad": "Ahmet Yılmaz",
+    "eski_danisman_id": "...",
+    "eski_danisman_ad_soyad": "Prof. Dr. Mehmet Öz",
+    "yeni_danisman_id": "...",
+    "yeni_danisman_ad_soyad": "Prof. Dr. Ayşe Kaya",
+    "degisiklik_tarihi": "2026-01-17",
+    "degisiklik_nedeni": "Uzmanlık alanı uygunluğu"
+  }
+}
+```
+
+---
+
+#### READ - Danışman Listesi
+```http
+GET /api/advisors/load-distribution
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+```json
+[
+  {
+    "ad": "Ayşe",
+    "soyad": "Kaya",
+    "mevcut_danismanlik_sayisi": 8
+  },
+  ...
+]
+```
+
+---
+
+### 📊 Diğer API Endpoint'leri
+
+| Method | Endpoint | Açıklama | Auth |
+|--------|----------|----------|------|
+| GET | `/api/dashboard/kpis` | Dashboard KPI'ları | ✅ |
+| GET | `/api/students` | Öğrenci listesi (pagination) | ✅ |
+| GET | `/api/students/:id/details` | Öğrenci detay bilgisi | ✅ |
+| GET | `/api/courses/analysis` | Ders analizi verileri | ✅ |
+| GET | `/api/advisors/kpis` | Danışman analizi KPI'ları | ✅ |
+| GET | `/api/advisors/performance` | Danışman performans listesi | ✅ |
+
+---
+
+## 📋 İş Kuralları (Business Rules)
+
+### İş Kuralı 1: Danışman Yük Limiti Kontrolü
+
+**Tanım:** Bir danışmana öğrenci atanırken veya mevcut danışman değiştirilirken, danışmanın mevcut öğrenci sayısı (`mevcut_danismanlik_sayisi`) maksimum kapasitesini (`maksimum_kapasite`) aşmamalıdır.
+
+**Kontrol Noktaları:**
+- ✅ POST `/api/advisors/assign` - Yeni atama öncesi
+- ✅ PUT `/api/advisors/change/:studentId` - Yeni danışman atanmadan önce
+
+**Teknik Implementasyon:**
+```javascript
+// Model: advisorModel.checkAdvisorCapacity()
+const hasCapacity = mevcut_danismanlik_sayisi < maksimum_kapasite;
+if (!hasCapacity) {
+    throw new Error('Danışman kapasitesi dolu');
+}
+```
+
+**HTTP Yanıt:**
+- Kapasite dolu ise → **400 Bad Request**
+- Hata mesajı: "Danışman kapasitesi dolu. Maksimum: X, Mevcut: Y"
+
+---
+
+### İş Kuralı 2: Aktif Danışman Kontrolü
+
+**Tanım:** Sadece aktif statüdeki danışmanlar (`aktif_danisman_mi = true` AND `aktif_mi = true`) öğrencilere atanabilir. Pasif, izinli veya emekli danışmanlara atama yapılamaz.
+
+**Kontrol Noktaları:**
+- ✅ POST `/api/advisors/assign` - Yeni atama öncesi
+- ✅ PUT `/api/advisors/change/:studentId` - Yeni danışman atanmadan önce
+
+**Teknik Implementasyon:**
+```javascript
+// Model: advisorModel.checkAdvisorStatus()
+const isActive = aktif_danisman_mi === true && aktif_mi === true;
+if (!isActive) {
+    throw new Error('Seçilen danışman aktif değil');
+}
+```
+
+**HTTP Yanıt:**
+- Danışman pasif ise → **400 Bad Request**
+- Hata mesajı: "Seçilen danışman aktif değil ve atama yapılamaz"
+
+---
+
 ## 📝 Dokümantasyon
-Detaylı proje özeti, veritabanı şeması ve mimari kararlar için [PROJE_OZETI.md](./PROJE_OZETI.md) dosyasını inceleyebilirsiniz.
+
+### Proje Dokümantasyonu
+- **[PROJE_OZETI.md](./PROJE_OZETI.md)** - Detaylı proje özeti, veritabanı şeması ve mimari kararlar
+- **[ER_DIAGRAM.md](./ER_DIAGRAM.md)** - Danışman Atama Modülü Entity-Relationship Diyagramı (31 tablo, tam schema)
+- **[ER_DIAGRAM.png](./ER_DIAGRAM.png)** - ER Diyagramı (PNG versiyonu - **Ders Teslimi için gerekli**)
+
+### Veritabanı
+- **Danışman Atama RPC Functions** - `backend/database/supabase_rpc_functions.sql` dosyasındaki SQL fonksiyonları Supabase'de çalıştırılmalıdır
+- **Tam Schema** - `backend/database/schema_final.sql` dosyasında güncel veritabanı şeması
 
 ---
 
